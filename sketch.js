@@ -5,9 +5,8 @@ class Doodle {
   }
 
   updateY() {
-    this.y =
-      window.innerHeight -
-      (Math.sin((frameCount / 8) % Math.PI) * window.innerHeight) / 2;
+    this.jumpFrame += 1;
+    this.y = window.innerHeight - this._jumpHeight() / 2;
   }
 
   draw() {
@@ -17,6 +16,18 @@ class Doodle {
     fill(255, 100, 100);
     // draw a circle at the mouse position
     ellipse(mouseX, this.y, 80);
+  }
+
+  newJump() {
+    this.jumpFrame = 0;
+  }
+
+  isFalling() {
+    return (this.jumpFrame / 8) % Math.PI > Math.PI / 2;
+  }
+
+  _jumpHeight() {
+    return Math.sin((this.jumpFrame / 8) % Math.PI) * window.innerHeight;
   }
 }
 
@@ -91,13 +102,16 @@ class Game {
   }
 
   detectCollision() {
-    this.platforms.positions.forEach((pos) => {
-      if (pos.x + 50 > mouseX && pos.x - 50 < mouseX) {
-        if (pos.y < this.doodle.y && pos.y > this.doodle.y - 20) {
-          text("collision!", width / 2, height / 2);
+    if (this.doodle.isFalling()) {
+      text("falling!", width / 2, height / 2);
+      this.platforms.positions.forEach((pos) => {
+        if (pos.x + 50 > mouseX && pos.x - 50 < mouseX) {
+          if (pos.y < this.doodle.y && pos.y > this.doodle.y - 20) {
+            text("collision!", width / 2, height / 2);
+          }
         }
-      }
-    });
+      });
+    }
   }
 }
 
