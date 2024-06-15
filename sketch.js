@@ -20,7 +20,7 @@ class Doodle {
   }
 }
 
-class Platform {
+class Platforms {
   constructor() {
     this.y = 0;
     this.positions = [];
@@ -44,7 +44,7 @@ class Game {
   constructor() {
     this.speed = 30;
     this.doodle = new Doodle();
-    this.platform = new Platform();
+    this.platforms = new Platforms();
   }
 
   setup() {
@@ -67,23 +67,23 @@ class Game {
 
     this.doodle.draw();
 
-    this.platform.resetPositions();
-    this.platform.draw(100, this.platform.y);
-    this.platform.draw(
+    this.platforms.resetPositions();
+    this.platforms.draw(100, this.platforms.y);
+    this.platforms.draw(
       window.innerWidth - 100,
-      this.platform.y + window.innerHeight / 4
+      this.platforms.y + window.innerHeight / 4
     );
-    this.platform.draw(
+    this.platforms.draw(
       window.innerWidth / 2,
-      this.platform.y + (window.innerHeight / 4) * 2
+      this.platforms.y + (window.innerHeight / 4) * 2
     );
-    this.platform.draw(
+    this.platforms.draw(
       window.innerWidth - 100,
-      this.platform.y + (window.innerHeight / 4) * 3
+      this.platforms.y + (window.innerHeight / 4) * 3
     );
-    this.platform.draw(
+    this.platforms.draw(
       window.innerWidth / 2,
-      this.platform.y + (window.innerHeight / 4) * 4
+      this.platforms.y + (window.innerHeight / 4) * 4
     );
 
     this.doodle.updateY();
@@ -91,7 +91,7 @@ class Game {
   }
 
   detectCollision() {
-    this.platform.positions.forEach((pos) => {
+    this.platforms.positions.forEach((pos) => {
       if (pos.x + 50 > mouseX && pos.x - 50 < mouseX) {
         if (pos.y < this.doodle.y && pos.y > this.doodle.y - 20) {
           text("collision!", width / 2, height / 2);
