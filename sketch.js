@@ -2,11 +2,12 @@ class Doodle {
   constructor() {
     this.y = window.innerHeight;
     this.jumpFrame = 0;
+    this.jumpStart = this.y;
   }
 
   updateY() {
     this.jumpFrame += 1;
-    this.y = window.innerHeight - this._jumpHeight() / 2;
+    this.y = this.jumpStart - this._jumpHeight() / 2;
   }
 
   draw() {
@@ -20,6 +21,7 @@ class Doodle {
 
   newJump() {
     this.jumpFrame = 0;
+    this.jumpStart = this.y;
   }
 
   isFalling() {
@@ -97,6 +99,11 @@ class Game {
       this.platforms.y + (window.innerHeight / 4) * 4
     );
 
+    if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
+      this.doodle.jumpStart += window.innerHeight / 50;
+      this.platforms.y += window.innerHeight / 50;
+    }
+
     this.doodle.updateY();
     this.detectCollision();
   }
@@ -108,6 +115,7 @@ class Game {
         if (pos.x + 50 > mouseX && pos.x - 50 < mouseX) {
           if (pos.y < this.doodle.y && pos.y > this.doodle.y - 20) {
             text("collision!", width / 2, height / 2);
+            this.doodle.newJump();
           }
         }
       });
