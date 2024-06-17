@@ -3,6 +3,8 @@ class Doodle {
     this.y = window.innerHeight;
     this.jumpFrame = 0;
     this.jumpStart = this.y;
+    this.width = 80;
+    this.radius = this.width / 2;
   }
 
   updateY() {
@@ -16,12 +18,12 @@ class Doodle {
     // set fill color
     fill(255, 100, 100);
     // draw a circle at the mouse position
-    ellipse(mouseX, this.y, 80);
+    ellipse(mouseX, this.y, this.width);
   }
 
-  newJump() {
+  newJump(platformY) {
     this.jumpFrame = 0;
-    this.jumpStart = this.y;
+    this.jumpStart = platformY;
   }
 
   isFalling() {
@@ -34,18 +36,26 @@ class Doodle {
 }
 
 class Platforms {
+  static WIDTH = 100;
+  static HEIGHT = 20;
+
   constructor() {
     this.y = 0;
     this.positions = [];
   }
 
   draw(x, y) {
-    this.positions.push({ x: x, y: y });
+    this.positions.push({
+      x: x,
+      y: y,
+      w: Platforms.WIDTH,
+      h: Platforms.HEIGHT,
+    });
     // set the color of the outline for the shape to be drawn
     stroke(255, 50, 100);
     // set fill color
     fill(255, 100, 100);
-    rect(x, y, 100, 20);
+    rect(x, y, Platforms.WIDTH, Platforms.HEIGHT);
   }
 
   resetPositions() {
@@ -103,19 +113,33 @@ class Game {
       this.doodle.jumpStart += window.innerHeight / 50;
       this.platforms.y += window.innerHeight / 50;
     }
-
+    this.platforms.positions.forEach((pos) => {
+      stroke("purple");
+      point(pos.x + pos.w + this.doodle.radius, pos.y - this.doodle.radius);
+      point(
+        pos.x + pos.w + this.doodle.radius,
+        pos.y - pos.h - this.doodle.radius
+      );
+      point(pos.x - this.doodle.radius, pos.y - this.doodle.radius);
+      point(pos.x - this.doodle.radius, pos.y - pos.h - this.doodle.radius);
+    });
     this.doodle.updateY();
     this.detectCollision();
   }
 
   detectCollision() {
     if (this.doodle.isFalling()) {
-      text("falling!", width / 2, height / 2);
       this.platforms.positions.forEach((pos) => {
-        if (pos.x + 50 > mouseX && pos.x - 50 < mouseX) {
-          if (pos.y < this.doodle.y && pos.y > this.doodle.y - 20) {
+        if (
+          pos.x + pos.w + this.doodle.radius > mouseX &&
+          pos.x - this.doodle.radius < mouseX
+        ) {
+          if (
+            pos.y - this.doodle.radius < this.doodle.y &&
+            pos.y > this.doodle.y - pos.h - this.doodle.radius
+          ) {
             text("collision!", width / 2, height / 2);
-            this.doodle.newJump();
+            this.doodle.newJump(pos.y - this.doodle.radius);
           }
         }
       });
