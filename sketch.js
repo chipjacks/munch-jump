@@ -1,15 +1,16 @@
 class Doodle {
+  static WIDTH = 80;
+  static RADIUS = Doodle.WIDTH / 2;
+
   constructor() {
     this.y = window.innerHeight;
     this.jumpFrame = 0;
     this.jumpStart = this.y;
-    this.width = 80;
-    this.radius = this.width / 2;
   }
 
   updateY() {
     this.jumpFrame += 1;
-    this.y = this.jumpStart - this._jumpHeight() / 2;
+    this.y = this.jumpStart - this._jumpHeight();
   }
 
   draw() {
@@ -18,7 +19,7 @@ class Doodle {
     // set fill color
     fill(255, 100, 100);
     // draw a circle at the mouse position
-    ellipse(mouseX, this.y, this.width);
+    ellipse(mouseX, this.y, Doodle.WIDTH);
   }
 
   newJump(platformY) {
@@ -31,7 +32,7 @@ class Doodle {
   }
 
   _jumpHeight() {
-    return Math.sin((this.jumpFrame / 8) % Math.PI) * window.innerHeight;
+    return (Math.sin((this.jumpFrame / 8) % Math.PI) * window.innerHeight) / 2;
   }
 }
 
@@ -41,30 +42,58 @@ class Platforms {
 
   constructor() {
     this.y = 0;
+  }
+
+  initPositions() {
     this.positions = [];
+    const spaceBetween = window.innerHeight / 4;
+    var lastY = window.innerHeight;
+    while (lastY > 0) {
+      this.addPlatform(lastY, spaceBetween);
+      lastY -= spaceBetween;
+    }
+  }
+
+  addPlatform(lastY, spaceBetween) {
+    this.positions.push({
+      x: Math.round(random(0, window.innerWidth - Platforms.WIDTH)),
+      y: lastY - spaceBetween,
+      w: Platforms.WIDTH,
+      h: Platforms.HEIGHT,
+    });
   }
 
   shiftY(increase) {
     this.y += increase;
+    this.positions = this.positions.map((p) => ({ ...p, y: p.y + increase }));
+    const topY = Math.min(...this.positions.map((p) => p.y));
+    if (topY > window.innerHeight / 4) {
+      text("new platform", width / 2, height / 2);
+      this.addPlatform(topY, height / 4);
+    }
   }
 
-  draw(x, y) {
-    this.positions.push({
-      x: x,
-      y: y,
-      w: Platforms.WIDTH,
-      h: Platforms.HEIGHT,
+  debugCollisionArea() {
+    this.positions.forEach((pos) => {
+      stroke("purple");
+      point(pos.x + pos.w + Doodle.RADIUS, pos.y - Doodle.RADIUS);
+      point(pos.x + pos.w + Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
+      point(pos.x - Doodle.RADIUS, pos.y - Doodle.RADIUS);
+      point(pos.x - Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
     });
-    // set the color of the outline for the shape to be drawn
-    stroke(255, 50, 100);
-    // set fill color
-    fill(255, 100, 100);
-    rect(x, y, Platforms.WIDTH, Platforms.HEIGHT);
   }
 
-  resetPositions() {
-    this.positions = [];
+  draw() {
+    this.positions.forEach((pos) => {
+      // set the color of the outline for the shape to be drawn
+      stroke(255, 50, 100);
+      // set fill color
+      fill(255, 100, 100);
+      rect(pos.x, pos.y, pos.w, pos.h);
+    });
   }
+
+  resetPositions() {}
 }
 
 class Game {
@@ -86,6 +115,7 @@ class Game {
     textAlign(CENTER);
     text("Click to play!", width / 2, height / 2);
     frameRate(this.speed);
+    this.platforms.initPositions();
   }
 
   draw() {
@@ -95,35 +125,8 @@ class Game {
 
     //draw everything
     this.doodle.draw();
-
-    this.platforms.draw(100, this.platforms.y);
-    this.platforms.draw(
-      window.innerWidth - 100,
-      this.platforms.y + window.innerHeight / 4
-    );
-    this.platforms.draw(
-      window.innerWidth / 2,
-      this.platforms.y + (window.innerHeight / 4) * 2
-    );
-    this.platforms.draw(
-      window.innerWidth - 100,
-      this.platforms.y + (window.innerHeight / 4) * 3
-    );
-    this.platforms.draw(
-      window.innerWidth / 2,
-      this.platforms.y + (window.innerHeight / 4) * 4
-    );
-    //debug
-    this.platforms.positions.forEach((pos) => {
-      stroke("purple");
-      point(pos.x + pos.w + this.doodle.radius, pos.y - this.doodle.radius);
-      point(
-        pos.x + pos.w + this.doodle.radius,
-        pos.y - pos.h - this.doodle.radius
-      );
-      point(pos.x - this.doodle.radius, pos.y - this.doodle.radius);
-      point(pos.x - this.doodle.radius, pos.y - pos.h - this.doodle.radius);
-    });
+    this.platforms.draw();
+    this.platforms.debugCollisionArea();
 
     // calculate new positions
     this.doodle.updateY();
@@ -138,15 +141,15 @@ class Game {
     if (this.doodle.isFalling()) {
       this.platforms.positions.forEach((pos) => {
         if (
-          pos.x + pos.w + this.doodle.radius > mouseX &&
-          pos.x - this.doodle.radius < mouseX
+          pos.x + pos.w + Doodle.RADIUS > mouseX &&
+          pos.x - Doodle.RADIUS < mouseX
         ) {
           if (
-            pos.y - this.doodle.radius < this.doodle.y &&
-            pos.y > this.doodle.y - pos.h - this.doodle.radius
+            pos.y - Doodle.RADIUS < this.doodle.y &&
+            pos.y > this.doodle.y - pos.h - Doodle.RADIUS
           ) {
             text("collision!", width / 2, height / 2);
-            this.doodle.newJump(pos.y - this.doodle.radius);
+            this.doodle.newJump(pos.y - Doodle.RADIUS);
           }
         }
       });
