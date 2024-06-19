@@ -44,6 +44,10 @@ class Platforms {
     this.positions = [];
   }
 
+  shiftY(increase) {
+    this.y += increase;
+  }
+
   draw(x, y) {
     this.positions.push({
       x: x,
@@ -87,10 +91,11 @@ class Game {
   draw() {
     // refresh the background every loop. This is necessary to clear the screen
     background(0);
+    this.platforms.resetPositions();
 
+    //draw everything
     this.doodle.draw();
 
-    this.platforms.resetPositions();
     this.platforms.draw(100, this.platforms.y);
     this.platforms.draw(
       window.innerWidth - 100,
@@ -108,11 +113,7 @@ class Game {
       window.innerWidth / 2,
       this.platforms.y + (window.innerHeight / 4) * 4
     );
-
-    if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
-      this.doodle.jumpStart += window.innerHeight / 50;
-      this.platforms.y += window.innerHeight / 50;
-    }
+    //debug
     this.platforms.positions.forEach((pos) => {
       stroke("purple");
       point(pos.x + pos.w + this.doodle.radius, pos.y - this.doodle.radius);
@@ -123,8 +124,14 @@ class Game {
       point(pos.x - this.doodle.radius, pos.y - this.doodle.radius);
       point(pos.x - this.doodle.radius, pos.y - pos.h - this.doodle.radius);
     });
+
+    // calculate new positions
     this.doodle.updateY();
     this.detectCollision();
+    if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
+      this.doodle.jumpStart += window.innerHeight / 50;
+      this.platforms.shiftY(window.innerHeight / 50);
+    }
   }
 
   detectCollision() {
