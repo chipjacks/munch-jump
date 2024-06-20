@@ -2,7 +2,8 @@ class Doodle {
   static WIDTH = 80;
   static RADIUS = Doodle.WIDTH / 2;
 
-  constructor() {
+  constructor(img) {
+    this.img = img;
     this.y = window.innerHeight;
     this.jumpFrame = 0;
     this.jumpStart = this.y;
@@ -19,7 +20,8 @@ class Doodle {
     // set fill color
     fill(255, 100, 100);
     // draw a circle at the mouse position
-    ellipse(mouseX, this.y, Doodle.WIDTH);
+    imageMode(CENTER);
+    image(this.img, mouseX, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
   }
 
   newJump(platformY) {
@@ -68,7 +70,6 @@ class Platforms {
     this.positions = this.positions.map((p) => ({ ...p, y: p.y + increase }));
     const topY = Math.min(...this.positions.map((p) => p.y));
     if (topY > window.innerHeight / 4) {
-      text("new platform", width / 2, height / 2);
       this.addPlatform(topY, height / 4);
     }
   }
@@ -86,10 +87,10 @@ class Platforms {
   draw() {
     this.positions.forEach((pos) => {
       // set the color of the outline for the shape to be drawn
-      stroke(255, 50, 100);
+      stroke("gray");
       // set fill color
-      fill(255, 100, 100);
-      rect(pos.x, pos.y, pos.w, pos.h);
+      fill("lightgreen");
+      rect(pos.x, pos.y, pos.w, pos.h, pos.w / 10);
     });
   }
 
@@ -97,9 +98,9 @@ class Platforms {
 }
 
 class Game {
-  constructor() {
+  constructor(doodleImg) {
     this.speed = 30;
-    this.doodle = new Doodle();
+    this.doodle = new Doodle(doodleImg);
     this.platforms = new Platforms();
   }
 
@@ -109,9 +110,9 @@ class Game {
       window.innerHeight,
       document.getElementById("main-canvas")
     );
-    background(255);
+    background("beige");
     textSize(50);
-    strokeWeight(4);
+    strokeWeight(2);
     textAlign(CENTER);
     text("Click to play!", width / 2, height / 2);
     frameRate(this.speed);
@@ -120,13 +121,12 @@ class Game {
 
   draw() {
     // refresh the background every loop. This is necessary to clear the screen
-    background(0);
+    background("beige");
     this.platforms.resetPositions();
 
     //draw everything
     this.doodle.draw();
     this.platforms.draw();
-    this.platforms.debugCollisionArea();
 
     // calculate new positions
     this.doodle.updateY();
@@ -148,7 +148,6 @@ class Game {
             pos.y - Doodle.RADIUS < this.doodle.y &&
             pos.y > this.doodle.y - pos.h - Doodle.RADIUS
           ) {
-            text("collision!", width / 2, height / 2);
             this.doodle.newJump(pos.y - Doodle.RADIUS);
           }
         }
@@ -157,9 +156,15 @@ class Game {
   }
 }
 
-let game = new Game();
+let game;
+let doodleImg;
+
+function preload() {
+  doodleImg = loadImage("images/doodle.png");
+}
 
 function setup() {
+  game = new Game(doodleImg);
   game.setup();
 }
 
