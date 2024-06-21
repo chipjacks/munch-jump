@@ -24,6 +24,17 @@ class Doodle {
     image(this.img, mouseX, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
   }
 
+  drawMenuImage() {
+    imageMode(CENTER);
+    image(
+      this.img,
+      width / 2,
+      height / 2 + Doodle.WIDTH,
+      Doodle.WIDTH * 1.2,
+      Doodle.WIDTH
+    );
+  }
+
   newJump(platformY) {
     this.jumpFrame = 0;
     this.jumpStart = platformY;
@@ -98,10 +109,17 @@ class Platforms {
 }
 
 class Game {
+  static STATE = Object.freeze({
+    MENU: "menu",
+    PLAYING: "playing",
+    GAME_OVER: "game_over",
+  });
+
   constructor(doodleImg) {
     this.speed = 30;
     this.doodle = new Doodle(doodleImg);
     this.platforms = new Platforms();
+    this.state = Game.STATE.MENU;
   }
 
   setup() {
@@ -110,16 +128,39 @@ class Game {
       window.innerHeight,
       document.getElementById("main-canvas")
     );
-    background("beige");
-    textSize(50);
-    strokeWeight(2);
-    textAlign(CENTER);
-    text("Click to play!", width / 2, height / 2);
+    this.drawMenu();
     frameRate(this.speed);
     this.platforms.initPositions();
   }
 
   draw() {
+    switch (this.state) {
+      case Game.STATE.MENU:
+        this.drawMenu();
+        break;
+      case Game.STATE.PLAYING:
+        this.drawPlaying();
+        break;
+      case Game.STATE.GAME_OVER:
+        this.drawGameOver();
+        break;
+      default:
+        // Handle unexpected states
+        console.error("Unknown game state: " + this.state);
+        break;
+    }
+  }
+
+  drawMenu() {
+    background("beige");
+    textSize(50);
+    strokeWeight(2);
+    textAlign(CENTER);
+    text("Click to play!", width / 2, height / 2);
+    this.doodle.drawMenuImage();
+  }
+
+  drawPlaying() {
     // refresh the background every loop. This is necessary to clear the screen
     background("beige");
     this.platforms.resetPositions();
@@ -134,6 +175,22 @@ class Game {
     if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
       this.doodle.jumpStart += window.innerHeight / 50;
       this.platforms.shiftY(window.innerHeight / 50);
+    }
+  }
+
+  drawGameOver() {
+    background("beige");
+    textSize(50);
+    strokeWeight(2);
+    textAlign(CENTER);
+    text("Game Over", width / 2, height / 2);
+  }
+
+  mouseMoved() {}
+
+  mousePressed() {
+    if (game.state === Game.STATE.MENU) {
+      game.state = Game.STATE.PLAYING;
     }
   }
 
@@ -168,12 +225,17 @@ function setup() {
   game.setup();
 }
 
+// Add a mousePressed function to start the game
+function mousePressed() {
+  game.mousePressed();
+}
+
 function draw() {
   game.draw();
 }
 
 function mouseMoved() {
-  game.doodle.draw();
+  game.mouseMoved();
 }
 
 function windowResized() {
