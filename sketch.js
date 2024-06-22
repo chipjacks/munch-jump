@@ -191,8 +191,10 @@ class Game {
     this.doodle.updateY();
     this.detectCollision();
     if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
-      this.doodle.jumpStart += window.innerHeight / 50;
-      this.platforms.shiftY(window.innerHeight / 50);
+      const diff = window.innerHeight - this.doodle.jumpStart;
+      const increase = diff / 15;
+      this.doodle.jumpStart += increase;
+      this.platforms.shiftY(increase);
     }
   }
 
