@@ -4,14 +4,20 @@ class Doodle {
 
   constructor(img) {
     this.img = img;
+    this.reset();
+  }
+
+  reset() {
     this.y = window.innerHeight;
     this.jumpFrame = 0;
     this.jumpStart = this.y;
+    this.acceleration = window.innerHeight / 10;
   }
 
   updateY() {
     this.jumpFrame += 1;
-    this.y = this.jumpStart - this._jumpHeight();
+    this.acceleration -= window.innerHeight / 100;
+    this.y = this.y - this.acceleration;
   }
 
   draw() {
@@ -38,14 +44,16 @@ class Doodle {
   newJump(platformY) {
     this.jumpFrame = 0;
     this.jumpStart = platformY;
+    this.y = platformY;
+    this.acceleration = height / 10;
   }
 
   isFalling() {
-    return (this.jumpFrame / 8) % Math.PI > Math.PI / 2;
+    return this.acceleration <= 0;
   }
 
-  _jumpHeight() {
-    return (Math.sin((this.jumpFrame / 8) % Math.PI) * window.innerHeight) / 2;
+  hasFallenOff() {
+    return this.isFalling() && this.y > height + Doodle.WIDTH;
   }
 }
 
@@ -57,20 +65,31 @@ class Platforms {
     this.y = 0;
   }
 
+  _spaceBetween() {
+    return window.innerHeight / 4;
+  }
+
   initPositions() {
     this.positions = [];
-    const spaceBetween = window.innerHeight / 4;
     var lastY = window.innerHeight;
+    this._addPlatform(mouseX - Doodle.RADIUS, lastY - Platforms.HEIGHT);
     while (lastY > 0) {
-      this.addPlatform(lastY, spaceBetween);
-      lastY -= spaceBetween;
+      lastY -= this._spaceBetween();
+      this._addPlatformRandomX(lastY);
     }
   }
 
-  addPlatform(lastY, spaceBetween) {
+  _addPlatformRandomX(y) {
+    this._addPlatform(
+      Math.round(random(0, window.innerWidth - Platforms.WIDTH)),
+      y
+    );
+  }
+
+  _addPlatform(x, y) {
     this.positions.push({
-      x: Math.round(random(0, window.innerWidth - Platforms.WIDTH)),
-      y: lastY - spaceBetween,
+      x: x,
+      y: y,
       w: Platforms.WIDTH,
       h: Platforms.HEIGHT,
     });
@@ -81,7 +100,7 @@ class Platforms {
     this.positions = this.positions.map((p) => ({ ...p, y: p.y + increase }));
     const topY = Math.min(...this.positions.map((p) => p.y));
     if (topY > window.innerHeight / 4) {
-      this.addPlatform(topY, height / 4);
+      this._addPlatformRandomX(topY - this._spaceBetween());
     }
   }
 
@@ -130,7 +149,6 @@ class Game {
     );
     this.drawMenu();
     frameRate(this.speed);
-    this.platforms.initPositions();
   }
 
   draw() {
@@ -183,19 +201,26 @@ class Game {
     textSize(50);
     strokeWeight(2);
     textAlign(CENTER);
-    text("Game Over", width / 2, height / 2);
+    text("Click to play again!", width / 2, height / 2);
   }
 
   mouseMoved() {}
 
   mousePressed() {
     if (game.state === Game.STATE.MENU) {
-      game.state = Game.STATE.PLAYING;
+      this.platforms.initPositions();
+      this.state = Game.STATE.PLAYING;
+    } else if (game.state == Game.STATE.GAME_OVER) {
+      this.doodle.reset();
+      this.platforms.initPositions();
+      this.state = Game.STATE.PLAYING;
     }
   }
 
   detectCollision() {
-    if (this.doodle.isFalling()) {
+    if (this.doodle.hasFallenOff()) {
+      this.state = Game.STATE.GAME_OVER;
+    } else if (this.doodle.isFalling()) {
       this.platforms.positions.forEach((pos) => {
         if (
           pos.x + pos.w + Doodle.RADIUS > mouseX &&
