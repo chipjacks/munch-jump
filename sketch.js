@@ -96,7 +96,9 @@ class Platforms {
 	}
 
 	_spaceBetween() {
-		return height / 4;
+		const space = random(height / 30, height / 4);
+		console.log(height, space);
+		return space;
 	}
 
 	initPositions() {
@@ -133,8 +135,9 @@ class Platforms {
 			y: p.y + increase,
 		}));
 		const topY = Math.min(...this.positions.map((p) => p.y));
-		if (topY > height / 4) {
-			const y = topY - this._spaceBetween();
+		const nextY = this._spaceBetween();
+		if (topY > nextY) {
+			const y = topY - nextY;
 			const x = this._addPlatformRandomX(y);
 			if (this.positions.length % 5 == 0) {
 				this.monsters.addMonster(x, y - Platforms.HEIGHT);
