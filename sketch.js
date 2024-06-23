@@ -3,6 +3,7 @@ class Doodle {
 	static RADIUS = Doodle.WIDTH / 2;
 	static JUMP_SPEED = 3; // 1-10
 	static JUMP_HEIGHT = 20; // 5-30
+	static MOVE_SPEED = 25; // 10 - 50
 
 	constructor(img) {
 		this.img = img;
@@ -10,33 +11,41 @@ class Doodle {
 	}
 
 	reset() {
-		this.y = window.innerHeight;
+		this.y = height;
 		this.jumpFrame = 0;
 		this.jumpStart = this.y;
-		this.acceleration = window.innerHeight / (100 / Doodle.JUMP_SPEED);
+		this.acceleration = height / (100 / Doodle.JUMP_SPEED);
 		this.x = width / 2;
 	}
 
-	updateY() {
+	updatePosition() {
+		this._updateY();
+		this._updateX();
+	}
+
+	_updateY() {
 		this.jumpFrame += 1;
 		this.acceleration -=
-			window.innerHeight / ((100 / Doodle.JUMP_SPEED) * Doodle.JUMP_HEIGHT);
+			height / ((100 / Doodle.JUMP_SPEED) * Doodle.JUMP_HEIGHT);
 		this.y = this.y - this.acceleration;
 	}
 
-	draw() {
+	_updateX() {
 		if (keyIsDown(LEFT_ARROW) === true) {
-			this.x -= width / 50;
+			this.x -= width / (50 - Doodle.MOVE_SPEED);
 			this.x = this.x % width;
 		}
 		if (keyIsDown(RIGHT_ARROW) === true) {
-			this.x += width / 50;
+			this.x += width / (50 - Doodle.MOVE_SPEED);
 		}
 		if (this.x >= width) {
 			this.x = this.x % width;
 		} else if (this.x <= 0) {
 			this.x = width + this.x;
 		}
+	}
+
+	draw() {
 		// set the color of the outline for the shape to be drawn
 		stroke(255, 50, 100);
 		// set fill color
@@ -82,13 +91,13 @@ class Platforms {
 	}
 
 	_spaceBetween() {
-		return window.innerHeight / 4;
+		return height / 4;
 	}
 
 	initPositions() {
 		this.y = 0;
 		this.positions = [];
-		var lastY = window.innerHeight;
+		var lastY = height;
 		this._addPlatform(width / 2 - Doodle.RADIUS, lastY - Platforms.HEIGHT);
 		while (lastY > 0) {
 			lastY -= this._spaceBetween();
@@ -97,7 +106,7 @@ class Platforms {
 	}
 
 	_addPlatformRandomX(y) {
-		const x = Math.round(random(0, window.innerWidth - Platforms.WIDTH));
+		const x = Math.round(random(0, width - Platforms.WIDTH));
 		this._addPlatform(x, y);
 		return x;
 	}
@@ -119,7 +128,7 @@ class Platforms {
 			y: p.y + increase,
 		}));
 		const topY = Math.min(...this.positions.map((p) => p.y));
-		if (topY > window.innerHeight / 4) {
+		if (topY > height / 4) {
 			const y = topY - this._spaceBetween();
 			const x = this._addPlatformRandomX(y);
 			if (this.positions.length % 5 == 0) {
@@ -257,10 +266,10 @@ class Game {
 		this.drawScore();
 
 		// calculate new positions
-		this.doodle.updateY();
+		this.doodle.updatePosition();
 		this.detectCollision();
-		if (this.doodle.jumpStart < window.innerHeight - window.innerHeight / 8) {
-			const diff = window.innerHeight - this.doodle.jumpStart;
+		if (this.doodle.jumpStart < height - height / 8) {
+			const diff = height - this.doodle.jumpStart;
 			const increase = diff / 15;
 			this.doodle.jumpStart += increase;
 			this.platforms.shiftY(increase);
