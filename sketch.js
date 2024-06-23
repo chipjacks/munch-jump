@@ -25,7 +25,7 @@ class Doodle {
     stroke(255, 50, 100);
     // set fill color
     fill(255, 100, 100);
-    // draw a circle at the mouse position
+    // draw a doodle at the mouse position
     imageMode(CENTER);
     image(this.img, mouseX, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
   }
@@ -61,7 +61,9 @@ class Platforms {
   static WIDTH = 100;
   static HEIGHT = 20;
 
-  constructor() {}
+  constructor(monsters) {
+    this.monsters = monsters;
+  }
 
   _spaceBetween() {
     return window.innerHeight / 4;
@@ -79,10 +81,9 @@ class Platforms {
   }
 
   _addPlatformRandomX(y) {
-    this._addPlatform(
-      Math.round(random(0, window.innerWidth - Platforms.WIDTH)),
-      y
-    );
+    const x = Math.round(random(0, window.innerWidth - Platforms.WIDTH));
+    this._addPlatform(x, y);
+    return x;
   }
 
   _addPlatform(x, y) {
@@ -97,9 +98,17 @@ class Platforms {
   shiftY(increase) {
     this.y += increase;
     this.positions = this.positions.map((p) => ({ ...p, y: p.y + increase }));
+    this.monsters.positions = this.monsters.positions.map((p) => ({
+      ...p,
+      y: p.y + increase,
+    }));
     const topY = Math.min(...this.positions.map((p) => p.y));
     if (topY > window.innerHeight / 4) {
-      this._addPlatformRandomX(topY - this._spaceBetween());
+      const y = topY - this._spaceBetween();
+      const x = this._addPlatformRandomX(y);
+      if (this.positions.length % 5 == 0) {
+        this.monsters.addMonster(x, y - Platforms.HEIGHT);
+      }
     }
   }
 
@@ -124,6 +133,35 @@ class Platforms {
   }
 }
 
+class Monsters {
+  static WIDTH = Platforms.WIDTH;
+  static HEIGHT = Platforms.WIDTH;
+
+  constructor(monsterImgs) {
+    this.positions = [];
+    this.imgs = monsterImgs;
+  }
+
+  addMonster(x, y) {
+    text("add monster!", width / 2, height / 2);
+    this.positions.push({ x, y });
+  }
+
+  draw() {
+    this.positions.forEach((pos) => {
+      // draw a monster on the platform
+      imageMode(CENTER);
+      image(
+        this.imgs.bear,
+        pos.x + Monsters.WIDTH / 2,
+        pos.y - Platforms.HEIGHT - 10,
+        Monsters.WIDTH,
+        Monsters.HEIGHT
+      );
+    });
+  }
+}
+
 class Game {
   static STATE = Object.freeze({
     MENU: "menu",
@@ -131,10 +169,11 @@ class Game {
     GAME_OVER: "game_over",
   });
 
-  constructor(doodleImg) {
+  constructor(images) {
     this.speed = 30;
-    this.doodle = new Doodle(doodleImg);
-    this.platforms = new Platforms();
+    this.doodle = new Doodle(images.doodle);
+    this.monsters = new Monsters(images.monsters);
+    this.platforms = new Platforms(this.monsters);
     this.state = Game.STATE.MENU;
   }
 
@@ -182,6 +221,7 @@ class Game {
     //draw everything
     this.doodle.draw();
     this.platforms.draw();
+    this.monsters.draw();
     this.drawScore();
 
     // calculate new positions
@@ -196,7 +236,8 @@ class Game {
   }
 
   drawScore() {
-    text(this.currentScore(), 100, 50);
+    fill("lightgreen");
+    text(this.currentScore().toLocaleString(), 100, 50);
   }
 
   drawGameOver() {
@@ -204,6 +245,7 @@ class Game {
     textSize(50);
     strokeWeight(2);
     textAlign(CENTER);
+    fill("lightgreen");
     text(
       `Nice! You scored ${this.currentScore().toLocaleString()}.`,
       width / 2,
@@ -270,14 +312,19 @@ class Game {
 }
 
 let game;
-let doodleImg;
+let images;
 
 function preload() {
-  doodleImg = loadImage("images/doodle.png");
+  images = {
+    doodle: loadImage("images/doodle.png"),
+    monsters: {
+      bear: loadImage("images/bear.png"),
+    },
+  };
 }
 
 function setup() {
-  game = new Game(doodleImg);
+  game = new Game(images);
   game.setup();
 }
 
