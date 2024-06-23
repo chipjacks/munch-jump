@@ -97,7 +97,6 @@ class Platforms {
 
 	_spaceBetween() {
 		const space = random(height / 30, height / 4);
-		console.log(height, space);
 		return space;
 	}
 
@@ -268,9 +267,9 @@ class Game {
 		background("beige");
 
 		//draw everything
-		this.doodle.draw();
 		this.platforms.draw();
 		this.monsters.draw();
+		this.doodle.draw();
 		this.drawScore();
 
 		// calculate new positions
