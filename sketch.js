@@ -14,6 +14,7 @@ class Doodle {
     this.jumpFrame = 0;
     this.jumpStart = this.y;
     this.acceleration = window.innerHeight / (100 / Doodle.JUMP_SPEED);
+    this.x = width / 2;
   }
 
   updateY() {
@@ -24,13 +25,25 @@ class Doodle {
   }
 
   draw() {
+    if (keyIsDown(LEFT_ARROW) === true) {
+      this.x -= width / 50;
+      this.x = this.x % width;
+    }
+    if (keyIsDown(RIGHT_ARROW) === true) {
+      this.x += width / 50;
+    }
+    if (this.x >= width) {
+      this.x = this.x % width;
+    } else if (this.x <= 0) {
+      this.x = width + this.x;
+    }
     // set the color of the outline for the shape to be drawn
     stroke(255, 50, 100);
     // set fill color
     fill(255, 100, 100);
     // draw a doodle at the mouse position
     imageMode(CENTER);
-    image(this.img, mouseX, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
+    image(this.img, this.x, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
   }
 
   drawMenuImage() {
@@ -146,7 +159,6 @@ class Monsters {
   }
 
   addMonster(x, y) {
-    text("add monster!", width / 2, height / 2);
     this.positions.push({ x, y });
   }
 
@@ -274,6 +286,7 @@ class Game {
 
   mousePressed() {
     if (game.state === Game.STATE.MENU) {
+      this.doodle.reset();
       this.platforms.initPositions();
       this.state = Game.STATE.PLAYING;
     } else if (game.state == Game.STATE.GAME_OVER) {
@@ -299,8 +312,8 @@ class Game {
     } else if (this.doodle.isFalling()) {
       this.platforms.positions.forEach((pos) => {
         if (
-          pos.x + pos.w + Doodle.RADIUS > mouseX &&
-          pos.x - Doodle.RADIUS < mouseX
+          pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
+          pos.x - Doodle.RADIUS < this.doodle.x
         ) {
           if (
             pos.y - Doodle.RADIUS < this.doodle.y &&
@@ -346,4 +359,9 @@ function mouseMoved() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+function keyPressed() {
+  // prevent any default behavior.
+  return false;
 }
