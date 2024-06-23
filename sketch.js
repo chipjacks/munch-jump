@@ -1,6 +1,8 @@
 class Doodle {
   static WIDTH = 80;
   static RADIUS = Doodle.WIDTH / 2;
+  static JUMP_SPEED = 3; // 1-10
+  static JUMP_HEIGHT = 20; // 5-30
 
   constructor(img) {
     this.img = img;
@@ -11,12 +13,13 @@ class Doodle {
     this.y = window.innerHeight;
     this.jumpFrame = 0;
     this.jumpStart = this.y;
-    this.acceleration = window.innerHeight / 10;
+    this.acceleration = window.innerHeight / (100 / Doodle.JUMP_SPEED);
   }
 
   updateY() {
     this.jumpFrame += 1;
-    this.acceleration -= window.innerHeight / 100;
+    this.acceleration -=
+      window.innerHeight / ((100 / Doodle.JUMP_SPEED) * Doodle.JUMP_HEIGHT);
     this.y = this.y - this.acceleration;
   }
 
@@ -45,7 +48,7 @@ class Doodle {
     this.jumpFrame = 0;
     this.jumpStart = platformY;
     this.y = platformY;
-    this.acceleration = height / 10;
+    this.acceleration = height / (100 / Doodle.JUMP_SPEED);
   }
 
   isFalling() {
