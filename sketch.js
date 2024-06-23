@@ -80,6 +80,11 @@ class Doodle {
 	hasFallenOff() {
 		return this.isFalling() && this.y > height + Doodle.WIDTH;
 	}
+
+	shiftY(increase) {
+		this.jumpStart += increase;
+		this.y += increase;
+	}
 }
 
 class Platforms {
@@ -271,7 +276,7 @@ class Game {
 		if (this.doodle.jumpStart < height - height / 8) {
 			const diff = height - this.doodle.jumpStart;
 			const increase = diff / 15;
-			this.doodle.jumpStart += increase;
+			this.doodle.shiftY(increase);
 			this.platforms.shiftY(increase);
 		}
 	}
