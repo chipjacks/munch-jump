@@ -61,15 +61,14 @@ class Platforms {
   static WIDTH = 100;
   static HEIGHT = 20;
 
-  constructor() {
-    this.y = 0;
-  }
+  constructor() {}
 
   _spaceBetween() {
     return window.innerHeight / 4;
   }
 
   initPositions() {
+    this.y = 0;
     this.positions = [];
     var lastY = window.innerHeight;
     this._addPlatform(mouseX - Doodle.RADIUS, lastY - Platforms.HEIGHT);
@@ -123,8 +122,6 @@ class Platforms {
       rect(pos.x, pos.y, pos.w, pos.h, pos.w / 10);
     });
   }
-
-  resetPositions() {}
 }
 
 class Game {
@@ -181,11 +178,11 @@ class Game {
   drawPlaying() {
     // refresh the background every loop. This is necessary to clear the screen
     background("beige");
-    this.platforms.resetPositions();
 
     //draw everything
     this.doodle.draw();
     this.platforms.draw();
+    this.drawScore();
 
     // calculate new positions
     this.doodle.updateY();
@@ -198,12 +195,21 @@ class Game {
     }
   }
 
+  drawScore() {
+    text(this.currentScore(), 100, 50);
+  }
+
   drawGameOver() {
     background("beige");
     textSize(50);
     strokeWeight(2);
     textAlign(CENTER);
-    text("Click to play again!", width / 2, height / 2);
+    text(`Nice! You scored ${this.currentScore()}.`, width / 2, height / 2);
+    text("Click to play again", width / 2, height / 2 + 75);
+  }
+
+  currentScore() {
+    return Math.round(this.platforms.y / 10).toLocaleString();
   }
 
   mouseMoved() {}
