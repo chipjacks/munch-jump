@@ -204,12 +204,25 @@ class Game {
     textSize(50);
     strokeWeight(2);
     textAlign(CENTER);
-    text(`Nice! You scored ${this.currentScore()}.`, width / 2, height / 2);
-    text("Click to play again", width / 2, height / 2 + 75);
+    text(
+      `Nice! You scored ${this.currentScore().toLocaleString()}.`,
+      width / 2,
+      height / 2
+    );
+    text(
+      `Your high score is ${this.highScore().toLocaleString()}.`,
+      width / 2,
+      height / 2 + 75
+    );
+    text("Click to play again!", width / 2, height / 2 + 150);
   }
 
   currentScore() {
-    return Math.round(this.platforms.y / 10).toLocaleString();
+    return Math.round(this.platforms.y / 10);
+  }
+
+  highScore() {
+    return getItem("highScore");
   }
 
   mouseMoved() {}
@@ -225,9 +238,19 @@ class Game {
     }
   }
 
+  transitionGameOver() {
+    const highScore = getItem("highScore");
+    if (highScore == 0 || highScore == null) {
+      storeItem("highScore", this.currentScore());
+    } else if (this.currentScore() > highScore) {
+      storeItem("highScore", this.currentScore());
+    }
+    this.state = Game.STATE.GAME_OVER;
+  }
+
   detectCollision() {
     if (this.doodle.hasFallenOff()) {
-      this.state = Game.STATE.GAME_OVER;
+      this.transitionGameOver();
     } else if (this.doodle.isFalling()) {
       this.platforms.positions.forEach((pos) => {
         if (
