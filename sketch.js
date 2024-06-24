@@ -324,7 +324,7 @@ class Game {
 		textSize(50);
 		strokeWeight(1);
 		textAlign(CENTER);
-		textFont("Comic Sans MS");
+		textFont("Bradley Hand");
 		stroke("black");
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
