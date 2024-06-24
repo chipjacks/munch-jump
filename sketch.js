@@ -206,7 +206,9 @@ class Monsters {
 			// draw a monster on the platform
 			imageMode(CENTER);
 			image(
-				this.imgs.bear,
+				round(frameCount / 10) % 2 == 0
+					? this.imgs.weiner
+					: this.imgs.weiner_up,
 				pos.x + Monsters.WIDTH / 2,
 				pos.y - Platforms.HEIGHT - 10,
 				pos.w,
@@ -446,7 +448,10 @@ function preload() {
 		},
 		monsters: {
 			bear: loadImage("images/bear.png"),
+			weiner: loadImage("images/super_weiner_down.png"),
+			weiner_up: loadImage("images/super_weiner_up.png"),
 		},
+		log: loadImage("images/log.png"),
 	};
 }
 
