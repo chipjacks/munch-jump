@@ -175,7 +175,7 @@ class Monsters {
 	}
 
 	addMonster(x, y) {
-		this.positions.push({ x, y });
+		this.positions.push({ x: x, y: y, w: Monsters.WIDTH, h: Monsters.HEIGHT });
 	}
 
 	draw() {
@@ -186,10 +186,33 @@ class Monsters {
 				this.imgs.bear,
 				pos.x + Monsters.WIDTH / 2,
 				pos.y - Platforms.HEIGHT - 10,
-				Monsters.WIDTH,
-				Monsters.HEIGHT
+				pos.w,
+				pos.h
 			);
 		});
+		this._debugCollisionArea();
+	}
+
+	_debugCollisionArea() {
+		this.positions.forEach((pos) => {
+			stroke("purple");
+			point(pos.x + pos.w + Doodle.RADIUS, pos.y - Doodle.RADIUS);
+			point(pos.x + pos.w + Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
+			point(pos.x - Doodle.RADIUS, pos.y - Doodle.RADIUS);
+			point(pos.x - Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
+		});
+	}
+
+	flatten(pos) {
+		const monster = this.positions.find((p) => p === pos);
+		if (!monster) {
+			console.error("missing monster!", pos);
+			return;
+		}
+		if (monster.h === Monsters.HEIGHT) {
+			monster.h = Monsters.HEIGHT / 4;
+			monster.y += Monsters.HEIGHT / 2.8;
+		}
 	}
 }
 
@@ -342,7 +365,21 @@ class Game {
 	detectCollision() {
 		if (this.doodle.hasFallenOff()) {
 			this.transitionGameOver();
+			return;
 		} else if (this.doodle.isFalling()) {
+			this.monsters.positions.forEach((pos) => {
+				if (
+					pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
+					pos.x - Doodle.RADIUS < this.doodle.x
+				) {
+					if (
+						pos.y - Doodle.RADIUS < this.doodle.y &&
+						pos.y > this.doodle.y - pos.h - Doodle.RADIUS
+					) {
+						this.monsters.flatten(pos);
+					}
+				}
+			});
 			this.platforms.positions.forEach((pos) => {
 				if (
 					pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
