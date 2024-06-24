@@ -48,17 +48,17 @@ class Doodle {
 
 	corners() {
 		return {
-			tl: { x: this.x - Doodle.WIDTH / 3, y: this.y - Doodle.HEIGHT / 2 },
-			tr: { x: this.x + Doodle.WIDTH / 3, y: this.y - Doodle.HEIGHT / 2 },
-			bl: { x: this.x - Doodle.WIDTH / 3, y: this.y + Doodle.HEIGHT / 2 },
-			br: { x: this.x + Doodle.WIDTH / 3, y: this.y + Doodle.HEIGHT / 2 },
+			tl: { x: this.x, y: this.y - Doodle.HEIGHT },
+			tr: { x: this.x + Doodle.WIDTH, y: this.y - Doodle.HEIGHT },
+			bl: { x: this.x, y: this.y },
+			br: { x: this.x + Doodle.WIDTH, y: this.y },
 		};
 	}
 
 	draw() {
-		imageMode(CENTER);
+		imageMode(CORNERS);
 		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
-		image(img, this.x, this.y, Doodle.WIDTH, Doodle.WIDTH);
+		image(img, this.x, this.y - Doodle.WIDTH, this.x + Doodle.WIDTH, this.y);
 		// this._debugCollisionArea();
 	}
 
@@ -149,7 +149,7 @@ class Platforms {
 		if (topY > nextY) {
 			const y = topY - nextY;
 			const pos = this._addPlatformRandomX(y);
-			if (this.positions.length > 10 && this.positions.length % 5 == 0) {
+			if (this.positions.length > 10 && this.positions.length % 10 == 0) {
 				this.monsters.addMonster(pos.x, pos.y);
 			}
 		}
@@ -421,16 +421,18 @@ class Game {
 			this.transitionGameOver();
 			return;
 		} else if (this.doodle.isFalling()) {
+			const dc = this.doodle.corners();
 			this.platforms.positions.forEach((pos) => {
+				const pc = this.platforms.corners(pos);
 				if (
-					pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
-					pos.x - Doodle.RADIUS < this.doodle.x
+					(dc.br.x >= pc.tl.x && dc.br.x <= pc.tr.x) ||
+					(dc.bl.x <= pc.tr.x && dc.bl.x >= pc.tl.x)
 				) {
 					if (
-						pos.y - Doodle.RADIUS < this.doodle.y &&
-						pos.y > this.doodle.y - pos.h - Doodle.RADIUS
+						pc.tl.y - dc.br.y <= Doodle.HEIGHT / 4 &&
+						pc.tl.y - dc.br.y > 0 - Doodle.HEIGHT / 4
 					) {
-						this.doodle.newJump(pos.y - Doodle.RADIUS);
+						this.doodle.newJump(pc.tr.y);
 					}
 				}
 			});
