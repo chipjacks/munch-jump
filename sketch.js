@@ -5,8 +5,8 @@ class Doodle {
 	static JUMP_HEIGHT = 20; // 5-30
 	static MOVE_SPEED = 25; // 10 - 50
 
-	constructor(img) {
-		this.img = img;
+	constructor(imgs) {
+		this.imgs = imgs;
 		this.reset();
 	}
 
@@ -52,13 +52,14 @@ class Doodle {
 		fill(255, 100, 100);
 		// draw a doodle at the mouse position
 		imageMode(CENTER);
-		image(this.img, this.x, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
+		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
+		image(img, this.x, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
 	}
 
 	drawMenuImage() {
 		imageMode(CENTER);
 		image(
-			this.img,
+			this.imgs.sitting,
 			width / 2,
 			height / 2 + Doodle.WIDTH,
 			Doodle.WIDTH * 1.2,
@@ -96,7 +97,7 @@ class Platforms {
 	}
 
 	_spaceBetween() {
-		const space = random(height / 30, height / 4);
+		const space = random(height / 10, height / 4);
 		return space;
 	}
 
@@ -367,19 +368,6 @@ class Game {
 			this.transitionGameOver();
 			return;
 		} else if (this.doodle.isFalling()) {
-			this.monsters.positions.forEach((pos) => {
-				if (
-					pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
-					pos.x - Doodle.RADIUS < this.doodle.x
-				) {
-					if (
-						pos.y - Doodle.RADIUS < this.doodle.y &&
-						pos.y > this.doodle.y - pos.h - Doodle.RADIUS
-					) {
-						this.monsters.flatten(pos);
-					}
-				}
-			});
 			this.platforms.positions.forEach((pos) => {
 				if (
 					pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
@@ -394,6 +382,24 @@ class Game {
 				}
 			});
 		}
+		this.monsters.positions.forEach((pos) => {
+			if (
+				pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
+				pos.x - Doodle.RADIUS < this.doodle.x
+			) {
+				if (
+					pos.y - Doodle.RADIUS < this.doodle.y &&
+					pos.y > this.doodle.y - pos.h - Doodle.RADIUS
+				) {
+					if (this.doodle.isFalling()) {
+						this.monsters.flatten(pos);
+					} else {
+						// this.transitionGameOver();
+						// return;
+					}
+				}
+			}
+		});
 	}
 }
 
@@ -402,7 +408,10 @@ let images;
 
 function preload() {
 	images = {
-		doodle: loadImage("images/doodle.png"),
+		doodle: {
+			sitting: loadImage("images/doodle.png"),
+			jumping: loadImage("images/doodle_jumping.png"),
+		},
 		monsters: {
 			bear: loadImage("images/bear.png"),
 		},
