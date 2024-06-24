@@ -264,7 +264,7 @@ class Game {
 		GAME_OVER: "game_over",
 	});
 
-	static TEXT_COLOR = "saddlebrown";
+	static TEXT_COLOR = "lightgreen";
 
 	constructor(images) {
 		this.speed = 30;
