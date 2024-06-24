@@ -320,8 +320,9 @@ class Game {
 	drawMenu() {
 		background("beige");
 		textSize(50);
-		strokeWeight(2);
+		strokeWeight(1);
 		textAlign(CENTER);
+		textFont("Comic Sans MS");
 		stroke("black");
 		fill("lightgreen");
 		text("Click to play!", width / 2, height / 2);
@@ -360,7 +361,6 @@ class Game {
 	drawGameOver() {
 		background("beige");
 		textSize(50);
-		strokeWeight(2);
 		textAlign(CENTER);
 		fill("lightgreen");
 		stroke("black");
