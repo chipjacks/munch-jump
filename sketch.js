@@ -1,5 +1,6 @@
 class Doodle {
-	static WIDTH = 80;
+	static WIDTH = 100;
+	static HEIGHT = 80;
 	static RADIUS = Doodle.WIDTH / 2;
 	static JUMP_SPEED = 3; // 1-10
 	static JUMP_HEIGHT = 20; // 5-30
@@ -45,6 +46,15 @@ class Doodle {
 		}
 	}
 
+	corners() {
+		return {
+			tl: { x: this.x - Doodle.WIDTH / 3, y: this.y - Doodle.HEIGHT / 2 },
+			tr: { x: this.x + Doodle.WIDTH / 3, y: this.y - Doodle.HEIGHT / 2 },
+			bl: { x: this.x - Doodle.WIDTH / 3, y: this.y + Doodle.HEIGHT / 2 },
+			br: { x: this.x + Doodle.WIDTH / 3, y: this.y + Doodle.HEIGHT / 2 },
+		};
+	}
+
 	draw() {
 		// set the color of the outline for the shape to be drawn
 		stroke(255, 50, 100);
@@ -53,7 +63,15 @@ class Doodle {
 		// draw a doodle at the mouse position
 		imageMode(CENTER);
 		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
-		image(img, this.x, this.y, Doodle.WIDTH * 1.2, Doodle.WIDTH);
+		image(img, this.x, this.y, Doodle.WIDTH, Doodle.WIDTH);
+		this._debugCollisionArea();
+	}
+
+	_debugCollisionArea() {
+		Object.values(this.corners()).forEach((c) => {
+			stroke("purple");
+			point(c.x, c.y);
+		});
 	}
 
 	drawMenuImage() {
@@ -139,7 +157,7 @@ class Platforms {
 		if (topY > nextY) {
 			const y = topY - nextY;
 			const x = this._addPlatformRandomX(y);
-			if (this.positions.length % 5 == 0) {
+			if (this.positions.length > 10 && this.positions.length % 5 == 0) {
 				this.monsters.addMonster(x, y - Platforms.HEIGHT);
 			}
 		}
@@ -175,6 +193,10 @@ class Monsters {
 		this.imgs = monsterImgs;
 	}
 
+	reset() {
+		this.positions = [];
+	}
+
 	addMonster(x, y) {
 		this.positions.push({ x: x, y: y, w: Monsters.WIDTH, h: Monsters.HEIGHT });
 	}
@@ -195,13 +217,24 @@ class Monsters {
 	}
 
 	_debugCollisionArea() {
+		stroke("purple");
 		this.positions.forEach((pos) => {
-			stroke("purple");
-			point(pos.x + pos.w + Doodle.RADIUS, pos.y - Doodle.RADIUS);
-			point(pos.x + pos.w + Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
-			point(pos.x - Doodle.RADIUS, pos.y - Doodle.RADIUS);
-			point(pos.x - Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
+			Object.values(this.corners(pos)).forEach((c) => {
+				point(c.x, c.y);
+			});
 		});
+	}
+
+	corners(pos) {
+		return {
+			tl: { x: pos.x, y: pos.y - Monsters.HEIGHT + Platforms.HEIGHT },
+			tr: {
+				x: pos.x + Monsters.WIDTH,
+				y: pos.y - Monsters.HEIGHT + Platforms.HEIGHT,
+			},
+			bl: { x: pos.x, y: pos.y + Platforms.HEIGHT },
+			br: { x: pos.x + Monsters.WIDTH, y: pos.y + Platforms.HEIGHT },
+		};
 	}
 
 	flatten(pos) {
@@ -210,10 +243,14 @@ class Monsters {
 			console.error("missing monster!", pos);
 			return;
 		}
-		if (monster.h === Monsters.HEIGHT) {
+		if (!this.isFlattened(monster)) {
 			monster.h = Monsters.HEIGHT / 4;
 			monster.y += Monsters.HEIGHT / 2.8;
 		}
+	}
+
+	isFlattened(pos) {
+		return pos.h < Monsters.HEIGHT;
 	}
 }
 
@@ -344,10 +381,12 @@ class Game {
 	mousePressed() {
 		if (game.state === Game.STATE.MENU) {
 			this.doodle.reset();
+			this.monsters.reset();
 			this.platforms.initPositions();
 			this.state = Game.STATE.PLAYING;
 		} else if (game.state == Game.STATE.GAME_OVER) {
 			this.doodle.reset();
+			this.monsters.reset();
 			this.platforms.initPositions();
 			this.state = Game.STATE.PLAYING;
 		}
@@ -383,20 +422,12 @@ class Game {
 			});
 		}
 		this.monsters.positions.forEach((pos) => {
-			if (
-				pos.x + pos.w + Doodle.RADIUS > this.doodle.x &&
-				pos.x - Doodle.RADIUS < this.doodle.x
-			) {
-				if (
-					pos.y - Doodle.RADIUS < this.doodle.y &&
-					pos.y > this.doodle.y - pos.h - Doodle.RADIUS
-				) {
-					if (this.doodle.isFalling()) {
-						this.monsters.flatten(pos);
-					} else {
-						// this.transitionGameOver();
-						// return;
-					}
+			if (isOverlapping(this.monsters.corners(pos), this.doodle.corners())) {
+				if (this.doodle.isFalling()) {
+					this.monsters.flatten(pos);
+				} else if (!this.monsters.isFlattened(pos)) {
+					this.transitionGameOver();
+					return;
 				}
 			}
 		});
@@ -411,6 +442,7 @@ function preload() {
 		doodle: {
 			sitting: loadImage("images/doodle.png"),
 			jumping: loadImage("images/doodle_jumping.png"),
+			farting: loadImage("images/doodle_farting.png"),
 		},
 		monsters: {
 			bear: loadImage("images/bear.png"),
@@ -443,4 +475,39 @@ function windowResized() {
 function keyPressed() {
 	// prevent any default behavior.
 	return false;
+}
+
+function isOverlapping(box1, box2) {
+	// Helper function to check if one box is to the left of the other
+	function isLeftOf(a, b) {
+		return a.tr.x < b.tl.x;
+	}
+
+	// Helper function to check if one box is to the right of the other
+	function isRightOf(a, b) {
+		return a.tl.x > b.tr.x;
+	}
+
+	// Helper function to check if one box is above the other
+	function isAbove(a, b) {
+		return a.bl.y < b.tl.y;
+	}
+
+	// Helper function to check if one box is below the other
+	function isBelow(a, b) {
+		return a.tl.y > b.bl.y;
+	}
+
+	// If any of these conditions is true, then the boxes do not overlap
+	if (
+		isLeftOf(box1, box2) ||
+		isRightOf(box1, box2) ||
+		isAbove(box1, box2) ||
+		isBelow(box1, box2)
+	) {
+		return false;
+	}
+
+	// Otherwise, the boxes overlap
+	return true;
 }
