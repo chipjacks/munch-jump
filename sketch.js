@@ -107,11 +107,12 @@ class Doodle {
 }
 
 class Platforms {
-	static WIDTH = 100;
-	static HEIGHT = 20;
+	static WIDTH = 120;
+	static HEIGHT = 60;
 
-	constructor(monsters) {
+	constructor(img, monsters) {
 		this.monsters = monsters;
+		this.img = img;
 	}
 
 	_spaceBetween() {
@@ -175,11 +176,14 @@ class Platforms {
 
 	draw() {
 		this.positions.forEach((pos) => {
-			// set the color of the outline for the shape to be drawn
-			stroke("gray");
-			// set fill color
-			fill("lightgreen");
-			rect(pos.x, pos.y, pos.w, pos.h, pos.w / 10);
+			imageMode(CORNERS);
+			image(
+				this.img,
+				pos.x,
+				pos.y,
+				pos.x + pos.w,
+				pos.y + pos.h
+			);
 		});
 	}
 }
@@ -267,7 +271,7 @@ class Game {
 		this.speed = 30;
 		this.doodle = new Doodle(images.doodle);
 		this.monsters = new Monsters(images.monsters);
-		this.platforms = new Platforms(this.monsters);
+		this.platforms = new Platforms(images.log, this.monsters);
 		this.state = Game.STATE.MENU;
 	}
 
