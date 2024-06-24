@@ -56,15 +56,10 @@ class Doodle {
 	}
 
 	draw() {
-		// set the color of the outline for the shape to be drawn
-		stroke(255, 50, 100);
-		// set fill color
-		fill(255, 100, 100);
-		// draw a doodle at the mouse position
 		imageMode(CENTER);
 		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
 		image(img, this.x, this.y, Doodle.WIDTH, Doodle.WIDTH);
-		this._debugCollisionArea();
+		// this._debugCollisionArea();
 	}
 
 	_debugCollisionArea() {
@@ -165,7 +160,7 @@ class Platforms {
 			imageMode(CORNERS);
 			image(this.img, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 		});
-		this._debugCollisionArea();
+		// this._debugCollisionArea();
 	}
 
 	corners(pos) {
@@ -207,7 +202,6 @@ class Monsters {
 			w: Monsters.WIDTH,
 			h: Monsters.HEIGHT,
 		};
-		console.log(blx, bly, pos);
 		this.positions.push(pos);
 	}
 
@@ -225,7 +219,7 @@ class Monsters {
 				pos.y + pos.h
 			);
 		});
-		this._debugCollisionArea();
+		// this._debugCollisionArea();
 	}
 
 	_debugCollisionArea() {
@@ -328,6 +322,8 @@ class Game {
 		textSize(50);
 		strokeWeight(2);
 		textAlign(CENTER);
+		stroke("black");
+		fill("lightgreen");
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
 	}
@@ -355,7 +351,10 @@ class Game {
 
 	drawScore() {
 		fill("lightgreen");
-		text(this.currentScore().toLocaleString(), 100, 50);
+		stroke("black");
+		textSize(50);
+		textAlign(LEFT);
+		text(this.currentScore().toLocaleString(), 30, 50);
 	}
 
 	drawGameOver() {
@@ -364,17 +363,21 @@ class Game {
 		strokeWeight(2);
 		textAlign(CENTER);
 		fill("lightgreen");
+		stroke("black");
+		text("Nice!", width / 2, height / 2);
+		textSize(30);
 		text(
-			`Nice! You scored ${this.currentScore().toLocaleString()}.`,
+			`You scored ${this.currentScore().toLocaleString()}.`,
 			width / 2,
-			height / 2
+			height / 2 + 50
 		);
 		text(
 			`Your high score is ${this.highScore().toLocaleString()}.`,
 			width / 2,
-			height / 2 + 75
+			height / 2 + 100
 		);
-		text("Click to play again!", width / 2, height / 2 + 150);
+		textSize(50);
+		text("Click to play again!", width / 2, height / 2 + 170);
 	}
 
 	currentScore() {
