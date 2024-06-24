@@ -264,6 +264,8 @@ class Game {
 		GAME_OVER: "game_over",
 	});
 
+	static TEXT_COLOR = "saddlebrown";
+
 	constructor(images) {
 		this.speed = 30;
 		this.doodle = new Doodle(images.doodle);
@@ -324,7 +326,7 @@ class Game {
 		textAlign(CENTER);
 		textFont("Comic Sans MS");
 		stroke("black");
-		fill("lightgreen");
+		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
 	}
@@ -351,7 +353,7 @@ class Game {
 	}
 
 	drawScore() {
-		fill("lightgreen");
+		fill(Game.TEXT_COLOR);
 		stroke("black");
 		textSize(50);
 		textAlign(LEFT);
@@ -362,7 +364,7 @@ class Game {
 		background("beige");
 		textSize(50);
 		textAlign(CENTER);
-		fill("lightgreen");
+		fill(Game.TEXT_COLOR);
 		stroke("black");
 		text("Nice!", width / 2, height / 2);
 		textSize(30);
