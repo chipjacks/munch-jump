@@ -1,5 +1,5 @@
 class Doodle {
-	static WIDTH = 100;
+	static WIDTH = 60;
 	static HEIGHT = 80;
 	static RADIUS = Doodle.WIDTH / 2;
 	static JUMP_SPEED = 3; // 1-10
@@ -58,7 +58,7 @@ class Doodle {
 	draw() {
 		imageMode(CORNERS);
 		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
-		image(img, this.x, this.y - Doodle.WIDTH, this.x + Doodle.WIDTH, this.y);
+		image(img, this.x, this.y - Doodle.HEIGHT, this.x + Doodle.WIDTH, this.y);
 		// this._debugCollisionArea();
 	}
 
@@ -75,8 +75,8 @@ class Doodle {
 			this.imgs.sitting,
 			width / 2,
 			height / 2 + Doodle.WIDTH,
-			Doodle.WIDTH * 1.2,
-			Doodle.WIDTH
+			Doodle.WIDTH,
+			Doodle.HEIGHT
 		);
 	}
 
