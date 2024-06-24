@@ -108,7 +108,7 @@ class Doodle {
 
 class Platforms {
 	static WIDTH = 120;
-	static HEIGHT = 60;
+	static HEIGHT = 40;
 
 	constructor(img, monsters) {
 		this.monsters = monsters;
@@ -116,7 +116,7 @@ class Platforms {
 	}
 
 	_spaceBetween() {
-		const space = random(height / 10, height / 4);
+		const space = random(height / 12, height / 4);
 		return space;
 	}
 
@@ -133,17 +133,13 @@ class Platforms {
 
 	_addPlatformRandomX(y) {
 		const x = Math.round(random(0, width - Platforms.WIDTH));
-		this._addPlatform(x, y);
-		return x;
+		return this._addPlatform(x, y);
 	}
 
 	_addPlatform(x, y) {
-		this.positions.push({
-			x: x,
-			y: y,
-			w: Platforms.WIDTH,
-			h: Platforms.HEIGHT,
-		});
+		const pos = { x: x, y: y, w: Platforms.WIDTH, h: Platforms.HEIGHT };
+		this.positions.push(pos);
+		return pos;
 	}
 
 	shiftY(increase) {
@@ -157,40 +153,43 @@ class Platforms {
 		const nextY = this._spaceBetween();
 		if (topY > nextY) {
 			const y = topY - nextY;
-			const x = this._addPlatformRandomX(y);
+			const pos = this._addPlatformRandomX(y);
 			if (this.positions.length > 10 && this.positions.length % 5 == 0) {
-				this.monsters.addMonster(x, y - Platforms.HEIGHT);
+				this.monsters.addMonster(pos.x, pos.y);
 			}
 		}
-	}
-
-	debugCollisionArea() {
-		this.positions.forEach((pos) => {
-			stroke("purple");
-			point(pos.x + pos.w + Doodle.RADIUS, pos.y - Doodle.RADIUS);
-			point(pos.x + pos.w + Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
-			point(pos.x - Doodle.RADIUS, pos.y - Doodle.RADIUS);
-			point(pos.x - Doodle.RADIUS, pos.y - pos.h - Doodle.RADIUS);
-		});
 	}
 
 	draw() {
 		this.positions.forEach((pos) => {
 			imageMode(CORNERS);
-			image(
-				this.img,
-				pos.x,
-				pos.y,
-				pos.x + pos.w,
-				pos.y + pos.h
-			);
+			image(this.img, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
+		});
+		this._debugCollisionArea();
+	}
+
+	corners(pos) {
+		return {
+			tl: { x: pos.x, y: pos.y },
+			tr: { x: pos.x + pos.w, y: pos.y },
+			bl: { x: pos.x, y: pos.y + pos.h },
+			br: { x: pos.x + pos.w, y: pos.y + pos.h },
+		};
+	}
+
+	_debugCollisionArea() {
+		stroke("purple");
+		this.positions.forEach((pos) => {
+			Object.values(this.corners(pos)).forEach((c) => {
+				point(c.x, c.y);
+			});
 		});
 	}
 }
 
 class Monsters {
 	static WIDTH = Platforms.WIDTH;
-	static HEIGHT = Platforms.WIDTH;
+	static HEIGHT = Platforms.WIDTH / 2;
 
 	constructor(monsterImgs) {
 		this.positions = [];
@@ -201,22 +200,29 @@ class Monsters {
 		this.positions = [];
 	}
 
-	addMonster(x, y) {
-		this.positions.push({ x: x, y: y, w: Monsters.WIDTH, h: Monsters.HEIGHT });
+	addMonster(blx, bly) {
+		const pos = {
+			x: blx,
+			y: bly - Monsters.HEIGHT + 10,
+			w: Monsters.WIDTH,
+			h: Monsters.HEIGHT,
+		};
+		console.log(blx, bly, pos);
+		this.positions.push(pos);
 	}
 
 	draw() {
 		this.positions.forEach((pos) => {
 			// draw a monster on the platform
-			imageMode(CENTER);
+			imageMode(CORNERS);
 			image(
 				round(frameCount / 10) % 2 == 0
 					? this.imgs.weiner
 					: this.imgs.weiner_up,
-				pos.x + Monsters.WIDTH / 2,
-				pos.y - Platforms.HEIGHT - 10,
-				pos.w,
-				pos.h
+				pos.x,
+				pos.y,
+				pos.x + pos.w,
+				pos.y + pos.h
 			);
 		});
 		this._debugCollisionArea();
@@ -233,13 +239,10 @@ class Monsters {
 
 	corners(pos) {
 		return {
-			tl: { x: pos.x, y: pos.y - Monsters.HEIGHT + Platforms.HEIGHT },
-			tr: {
-				x: pos.x + Monsters.WIDTH,
-				y: pos.y - Monsters.HEIGHT + Platforms.HEIGHT,
-			},
-			bl: { x: pos.x, y: pos.y + Platforms.HEIGHT },
-			br: { x: pos.x + Monsters.WIDTH, y: pos.y + Platforms.HEIGHT },
+			tl: { x: pos.x, y: pos.y },
+			tr: { x: pos.x + pos.w, y: pos.y },
+			bl: { x: pos.x, y: pos.y + pos.h },
+			br: { x: pos.x + pos.w, y: pos.y + pos.h },
 		};
 	}
 
@@ -250,8 +253,8 @@ class Monsters {
 			return;
 		}
 		if (!this.isFlattened(monster)) {
-			monster.h = Monsters.HEIGHT / 4;
-			monster.y += Monsters.HEIGHT / 2.8;
+			monster.y += (pos.h / 3) * 2;
+			monster.h = pos.h / 3;
 		}
 	}
 
