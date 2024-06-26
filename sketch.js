@@ -17,6 +17,7 @@ class Doodle {
 		this.jumpStart = this.y;
 		this.acceleration = height / (100 / Doodle.JUMP_SPEED);
 		this.x = width / 2;
+		this.isFarting = false;
 	}
 
 	updatePosition() {
@@ -55,10 +56,25 @@ class Doodle {
 		};
 	}
 
+	fart() {
+		this.isFarting = true;
+		this.doneFarting = false;
+	}
+
 	draw() {
 		imageMode(CORNERS);
 		const img = this.isFalling() ? this.imgs.sitting : this.imgs.jumping;
 		image(img, this.x, this.y - Doodle.HEIGHT, this.x + Doodle.WIDTH, this.y);
+		if (this.isFarting && !this.isFalling()) {
+			imageMode(CENTER);
+			image(
+				this.imgs.fart,
+				this.x - Doodle.HEIGHT / 6,
+				this.y - Doodle.HEIGHT / 2,
+				Doodle.HEIGHT / 4,
+				Doodle.HEIGHT / 4
+			);
+		}
 		// this._debugCollisionArea();
 	}
 
@@ -85,6 +101,11 @@ class Doodle {
 		this.jumpStart = platformY;
 		this.y = platformY;
 		this.acceleration = height / (100 / Doodle.JUMP_SPEED);
+		if (this.doneFarting) {
+			this.isFarting = false;
+		} else {
+			this.doneFarting = true;
+		}
 	}
 
 	isFalling() {
@@ -441,6 +462,7 @@ class Game {
 			if (isOverlapping(this.monsters.corners(pos), this.doodle.corners())) {
 				if (this.doodle.isFalling()) {
 					this.monsters.flatten(pos);
+					this.doodle.fart();
 				} else if (!this.monsters.isFlattened(pos)) {
 					this.transitionGameOver();
 					return;
@@ -458,7 +480,7 @@ function preload() {
 		doodle: {
 			sitting: loadImage("images/doodle.png"),
 			jumping: loadImage("images/doodle_jumping.png"),
-			farting: loadImage("images/doodle_farting.png"),
+			fart: loadImage("images/doodle_fart.png"),
 		},
 		monsters: {
 			bear: loadImage("images/bear.png"),
