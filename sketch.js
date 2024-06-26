@@ -4,7 +4,7 @@ class Doodle {
 	static RADIUS = Doodle.WIDTH / 2;
 	static JUMP_SPEED = 3; // 1-10
 	static JUMP_HEIGHT = 20; // 5-30
-	static MOVE_SPEED = 25; // 10 - 50
+	static MOVE_SPEED = 20; // 10 - 50
 
 	constructor(imgs) {
 		this.imgs = imgs;
@@ -33,11 +33,11 @@ class Doodle {
 
 	_updateX() {
 		if (keyIsDown(LEFT_ARROW) === true) {
-			this.x -= width / (50 - Doodle.MOVE_SPEED);
+			this.x -= Doodle.MOVE_SPEED;
 			this.x = this.x % width;
 		}
 		if (keyIsDown(RIGHT_ARROW) === true) {
-			this.x += width / (50 - Doodle.MOVE_SPEED);
+			this.x += Doodle.MOVE_SPEED;
 		}
 		if (this.x >= width) {
 			this.x = this.x % width;
@@ -104,6 +104,7 @@ class Doodle {
 class Platforms {
 	static WIDTH = 120;
 	static HEIGHT = 40;
+	static MIN_DISTANCE = 200;
 
 	constructor(img, monsters) {
 		this.monsters = monsters;
@@ -111,8 +112,9 @@ class Platforms {
 	}
 
 	_spaceBetween() {
-		const space = random(height / 12, height / 4);
-		return space;
+		let space = random(height / 12, height / 4);
+		let aspectRatio = width / height;
+		return space / aspectRatio / 2;
 	}
 
 	initPositions() {
@@ -133,6 +135,14 @@ class Platforms {
 
 	_addPlatform(x, y) {
 		const pos = { x: x, y: y, w: Platforms.WIDTH, h: Platforms.HEIGHT };
+		const prevPos = this.positions.at(-1);
+		if (
+			prevPos &&
+			Math.abs(pos.x - prevPos.x) < Platforms.MIN_DISTANCE &&
+			Math.abs(pos.y - prevPos.y) < Platforms.MIN_DISTANCE
+		) {
+			return;
+		}
 		this.positions.push(pos);
 		return pos;
 	}
@@ -149,7 +159,11 @@ class Platforms {
 		if (topY > nextY) {
 			const y = topY - nextY;
 			const pos = this._addPlatformRandomX(y);
-			if (this.positions.length > 10 && this.positions.length % 10 == 0) {
+			if (
+				pos &&
+				this.positions.length > 10 &&
+				this.positions.length % 10 == 0
+			) {
 				this.monsters.addMonster(pos.x, pos.y);
 			}
 		}
@@ -276,7 +290,7 @@ class Game {
 
 	setup() {
 		const canvas = document.getElementById("main-canvas");
-		const { w, h } = this._calcAspectRatioBox();
+		const { w, h } = { w: window.innerWidth, h: window.innerHeight };
 		createCanvas(w, h, canvas);
 		this.drawMenu();
 		frameRate(this.speed);
