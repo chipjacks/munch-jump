@@ -35,12 +35,15 @@ class Doodle {
 	_updateX() {
 		angleMode(DEGREES);
 		console.log("rotationY", rotationY);
-		if (keyIsDown(LEFT_ARROW) === true || rotationY < -15) {
+		if (keyIsDown(LEFT_ARROW) === true) {
 			this.x -= width / (50 - Doodle.MOVE_SPEED);
-			this.x = this.x % width;
+		} else if (rotationY < -5) {
+			this.x -= rotationY;
 		}
-		if (keyIsDown(RIGHT_ARROW) === true || rotationY > 15) {
+		if (keyIsDown(RIGHT_ARROW) === true || rotationY > 5) {
 			this.x += width / (50 - Doodle.MOVE_SPEED);
+		} else if (rotationY > 5) {
+			this.x += rotationY;
 		}
 		if (this.x >= width) {
 			this.x = this.x % width;
@@ -359,7 +362,8 @@ class Game {
 		) {
 			// Create a button for requesting permission
 			let button = createButton("Allow Device Orientation");
-			button.position(10, 10);
+			button.position(width / 2, height / 2 + height / 8);
+			button.size(width / 10, height / 10);
 			button.mousePressed(requestOrientationPermission);
 		}
 	}
