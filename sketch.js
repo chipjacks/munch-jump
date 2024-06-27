@@ -302,6 +302,20 @@ class Game {
 		createCanvas(w, h, canvas);
 		this.drawMenu();
 		frameRate(this.speed);
+
+		// Check if the browser requires permission to access device orientation
+		if (typeof DeviceOrientationEvent.requestPermission === "function") {
+			DeviceOrientationEvent.requestPermission()
+				.then((permissionState) => {
+					if (permissionState === "granted") {
+						window.addEventListener("deviceorientation", handleOrientation);
+					}
+				})
+				.catch(console.error);
+		} else {
+			// Handle regular non-iOS 13+ devices
+			window.addEventListener("deviceorientation", handleOrientation);
+		}
 	}
 
 	_calcAspectRatioBox() {
