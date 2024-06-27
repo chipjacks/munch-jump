@@ -553,6 +553,7 @@ function mouseMoved() {
 }
 
 function windowResized() {
+	DOODLE_HEIGHT = window.innerHeight / 10;
 	resizeCanvas(windowWidth, windowHeight);
 }
 
