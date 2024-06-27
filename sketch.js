@@ -33,6 +33,7 @@ class Doodle {
 	}
 
 	_updateX() {
+		angleMode(DEGREES);
 		console.log("rotationY", rotationY);
 		if (keyIsDown(LEFT_ARROW) === true || rotationY < -15) {
 			this.x -= width / (50 - Doodle.MOVE_SPEED);
@@ -601,6 +602,4 @@ function requestOrientationPermission() {
 	}
 }
 
-function handleOrientation(event) {
-	console.log("orientation", event);
-}
+function handleOrientation(event) {}
