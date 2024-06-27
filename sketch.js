@@ -351,6 +351,16 @@ class Game {
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
+
+		if (
+			typeof DeviceOrientationEvent.requestPermission === "function" &&
+			!permissionGranted
+		) {
+			// Create a button for requesting permission
+			let button = createButton("Allow Device Orientation");
+			button.position(10, 10);
+			button.mousePressed(requestOrientationPermission);
+		}
 	}
 
 	drawPlaying() {
@@ -569,4 +579,24 @@ function isOverlapping(box1, box2) {
 
 	// Otherwise, the boxes overlap
 	return true;
+}
+
+let permissionGranted = false;
+
+function requestOrientationPermission() {
+	// Check if the browser requires permission to access device orientation
+	if (typeof DeviceOrientationEvent.requestPermission === "function") {
+		DeviceOrientationEvent.requestPermission()
+			.then((permissionState) => {
+				if (permissionState === "granted") {
+					permissionGranted = true;
+					window.addEventListener("deviceorientation", handleOrientation);
+				}
+			})
+			.catch(console.error);
+	} else {
+		// Handle regular non-iOS 13+ devices
+		permissionGranted = true;
+		window.addEventListener("deviceorientation", handleOrientation);
+	}
 }
