@@ -363,7 +363,8 @@ class Game {
 			// Create a button for requesting permission
 			let button = createButton("Allow Device Orientation");
 			button.position(width / 2, height / 2 + height / 8);
-			button.size(width / 10, height / 10);
+			button.size(width / 2, height / 10);
+			button.style("font-size:5vh");
 			button.mousePressed(requestOrientationPermission);
 		}
 	}
