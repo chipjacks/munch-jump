@@ -592,8 +592,6 @@ function requestOrientationPermission() {
 			.catch(console.error);
 	} else {
 		// Handle regular non-iOS 13+ devices
-		storeItem("permissionGranted", true);
-		permissionGranted = true;
 		window.addEventListener("deviceorientation", handleOrientation);
 	}
 }
