@@ -600,3 +600,7 @@ function requestOrientationPermission() {
 		window.addEventListener("deviceorientation", handleOrientation);
 	}
 }
+
+function handleOrientation(event) {
+	console.log("orientation", event);
+}
