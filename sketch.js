@@ -368,7 +368,12 @@ class Game {
 			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
 		} else {
-			document.getElementById("permissionButton")?.remove();
+			let button = document.getElementById("permissionButton");
+			if (button) {
+				button.size(0, 0);
+				button.hide();
+				button.remove();
+			}
 		}
 	}
 
