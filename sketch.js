@@ -33,11 +33,12 @@ class Doodle {
 	}
 
 	_updateX() {
-		if (keyIsDown(LEFT_ARROW) === true) {
+		console.log("rotationY", rotationY);
+		if (keyIsDown(LEFT_ARROW) === true || rotationY < -15) {
 			this.x -= width / (50 - Doodle.MOVE_SPEED);
 			this.x = this.x % width;
 		}
-		if (keyIsDown(RIGHT_ARROW) === true) {
+		if (keyIsDown(RIGHT_ARROW) === true || rotationY > 15) {
 			this.x += width / (50 - Doodle.MOVE_SPEED);
 		}
 		if (this.x >= width) {
@@ -498,6 +499,10 @@ function setup() {
 
 // Add a mousePressed function to start the game
 function mousePressed() {
+	game.mousePressed();
+}
+
+function touchStarted() {
 	game.mousePressed();
 }
 
