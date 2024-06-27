@@ -365,6 +365,7 @@ class Game {
 			button.position(width / 4, height / 2 + height / 8);
 			button.size(width / 2, height / 10);
 			button.style("font-size:2vh");
+			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
 		}
 	}
@@ -577,6 +578,7 @@ function isOverlapping(box1, box2) {
 let permissionGranted = false;
 
 function requestOrientationPermission() {
+	document.getElementById("permissionButton").remove();
 	// Check if the browser requires permission to access device orientation
 	if (typeof DeviceOrientationEvent.requestPermission === "function") {
 		DeviceOrientationEvent.requestPermission()
