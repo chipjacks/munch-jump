@@ -367,6 +367,8 @@ class Game {
 			button.style("font-size:2vh");
 			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
+		} else {
+			document.getElementById("permissionButton")?.remove();
 		}
 	}
 
