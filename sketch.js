@@ -1,6 +1,7 @@
+let DOODLE_HEIGHT = window.innerHeight / 10;
 class Doodle {
-	static WIDTH = 60;
-	static HEIGHT = 80;
+	static WIDTH = (DOODLE_HEIGHT * 3) / 4;
+	static HEIGHT = DOODLE_HEIGHT;
 	static RADIUS = Doodle.WIDTH / 2;
 	static JUMP_SPEED = 3; // 1-10
 	static JUMP_HEIGHT = 20; // 5-30
@@ -127,9 +128,9 @@ class Doodle {
 }
 
 class Platforms {
-	static WIDTH = 120;
-	static HEIGHT = 40;
-	static MIN_DISTANCE = 200;
+	static WIDTH = DOODLE_HEIGHT * 1.2;
+	static HEIGHT = Platforms.WIDTH * 0.3;
+	static MIN_DISTANCE = DOODLE_HEIGHT;
 
 	constructor(img, monsters) {
 		this.monsters = monsters;
@@ -360,7 +361,7 @@ class Game {
 
 	drawMenu() {
 		background("beige");
-		textSize(50);
+		textSize(DOODLE_HEIGHT / 2);
 		strokeWeight(1);
 		textAlign(CENTER);
 		textFont("Bradley Hand");
@@ -414,14 +415,14 @@ class Game {
 	drawScore() {
 		fill(Game.TEXT_COLOR);
 		stroke("black");
-		textSize(50);
+		textSize(DOODLE_HEIGHT / 2);
 		textAlign(LEFT);
-		text(this.currentScore().toLocaleString(), 30, 50);
+		text(this.currentScore().toLocaleString(), 30, DOODLE_HEIGHT / 2);
 	}
 
 	drawGameOver() {
 		background("beige");
-		textSize(50);
+		textSize(DOODLE_HEIGHT / 2);
 		textAlign(CENTER);
 		fill(Game.TEXT_COLOR);
 		stroke("black");
