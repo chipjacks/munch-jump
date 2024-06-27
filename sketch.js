@@ -37,13 +37,13 @@ class Doodle {
 		console.log("rotationY", rotationY);
 		if (keyIsDown(LEFT_ARROW) === true) {
 			this.x -= width / (50 - Doodle.MOVE_SPEED);
-		} else if (rotationY < -5) {
-			this.x -= rotationY;
+		} else if (rotationY < -10) {
+			this.x += rotationY / 2;
 		}
 		if (keyIsDown(RIGHT_ARROW) === true || rotationY > 5) {
 			this.x += width / (50 - Doodle.MOVE_SPEED);
-		} else if (rotationY > 5) {
-			this.x += rotationY;
+		} else if (rotationY > 10) {
+			this.x += rotationY / 2;
 		}
 		if (this.x >= width) {
 			this.x = this.x % width;
