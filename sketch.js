@@ -358,7 +358,7 @@ class Game {
 
 		if (
 			typeof DeviceOrientationEvent.requestPermission === "function" &&
-			!getItem("permissionGranted")
+			!permissionGranted
 		) {
 			// Create a button for requesting permission
 			let button = createButton("Allow Device Orientation");
@@ -584,7 +584,6 @@ function requestOrientationPermission() {
 		DeviceOrientationEvent.requestPermission()
 			.then((permissionState) => {
 				if (permissionState === "granted") {
-					storeItem("permissionGranted", true);
 					permissionGranted = true;
 					window.addEventListener("deviceorientation", handleOrientation);
 				}
@@ -597,3 +596,30 @@ function requestOrientationPermission() {
 }
 
 function handleOrientation(event) {}
+
+function checkPermissionState() {
+	if (navigator.permissions) {
+		navigator.permissions
+			.query({ name: "accelerometer" })
+			.then((result) => {
+				if (result.state === "granted") {
+					permissionGranted = true;
+					document.getElementById("permissionButton").remove();
+					window.addEventListener("deviceorientation", handleOrientation);
+				} else if (result.state === "prompt") {
+					// Permission has not been requested yet, wait for user action
+				} else if (result.state === "denied") {
+					// Permission was denied, inform the user
+				}
+				result.onchange = () => {
+					if (result.state === "granted") {
+						permissionGranted = true;
+						window.addEventListener("deviceorientation", handleOrientation);
+					} else {
+						permissionGranted = false;
+					}
+				};
+			})
+			.catch(console.error);
+	}
+}
