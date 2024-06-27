@@ -37,12 +37,12 @@ class Doodle {
 		console.log("rotationY", rotationY);
 		if (keyIsDown(LEFT_ARROW) === true) {
 			this.x -= width / (50 - Doodle.MOVE_SPEED);
-		} else if (rotationY < -10) {
+		} else if (rotationY < -3) {
 			this.x += rotationY / 2;
 		}
 		if (keyIsDown(RIGHT_ARROW) === true || rotationY > 5) {
 			this.x += width / (50 - Doodle.MOVE_SPEED);
-		} else if (rotationY > 10) {
+		} else if (rotationY > 3) {
 			this.x += rotationY / 2;
 		}
 		if (this.x >= width) {
@@ -358,13 +358,13 @@ class Game {
 
 		if (
 			typeof DeviceOrientationEvent.requestPermission === "function" &&
-			!permissionGranted
+			!getItem("permissionGranted")
 		) {
 			// Create a button for requesting permission
 			let button = createButton("Allow Device Orientation");
-			button.position(width / 2, height / 2 + height / 8);
+			button.position(width / 4, height / 2 + height / 8);
 			button.size(width / 2, height / 10);
-			button.style("font-size:5vh");
+			button.style("font-size:2vh");
 			button.mousePressed(requestOrientationPermission);
 		}
 	}
@@ -432,19 +432,6 @@ class Game {
 
 	mousePressed() {
 		if (game.state === Game.STATE.MENU) {
-			// Check if the browser requires permission to access device orientation
-			if (typeof DeviceOrientationEvent.requestPermission === "function") {
-				DeviceOrientationEvent.requestPermission()
-					.then((permissionState) => {
-						if (permissionState === "granted") {
-							window.addEventListener("deviceorientation", handleOrientation);
-						}
-					})
-					.catch(console.error);
-			} else {
-				// Handle regular non-iOS 13+ devices
-				window.addEventListener("deviceorientation", handleOrientation);
-			}
 			this.doodle.reset();
 			this.monsters.reset();
 			this.platforms.initPositions();
@@ -595,6 +582,7 @@ function requestOrientationPermission() {
 		DeviceOrientationEvent.requestPermission()
 			.then((permissionState) => {
 				if (permissionState === "granted") {
+					storeItem("permissionGranted", true);
 					permissionGranted = true;
 					window.addEventListener("deviceorientation", handleOrientation);
 				}
@@ -602,6 +590,7 @@ function requestOrientationPermission() {
 			.catch(console.error);
 	} else {
 		// Handle regular non-iOS 13+ devices
+		storeItem("permissionGranted", true);
 		permissionGranted = true;
 		window.addEventListener("deviceorientation", handleOrientation);
 	}
