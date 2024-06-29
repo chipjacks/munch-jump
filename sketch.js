@@ -315,7 +315,6 @@ class Game {
 	}
 
 	setup() {
-		checkPermissionState();
 		const canvas = document.getElementById("main-canvas");
 		const { w, h } = { w: window.innerWidth, h: window.innerHeight };
 		createCanvas(w, h, canvas);
@@ -370,19 +369,17 @@ class Game {
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
-
-		if (
-			typeof DeviceOrientationEvent.requestPermission === "function" &&
-			!permissionGranted
-		) {
-			// Create a button for requesting permission
-			let button = createButton("Allow Device Orientation");
-			button.position(width - width / 3, 10);
-			button.size(width / 3, height / 20);
-			button.style("font-size:3vh");
-			button.id("permissionButton");
-			button.mousePressed(requestOrientationPermission);
-		}
+		checkPermissionGranted().then((granted) => {
+			if (!granted) {
+				// Create a button for requesting permission
+				let button = createButton("Allow Device Orientation");
+				button.position(width - width / 3, 10);
+				button.size(width / 3, height / 20);
+				button.style("font-size:1vh");
+				button.id("permissionButton");
+				button.mousePressed(requestOrientationPermission);
+			}
+		});
 	}
 
 	drawPlaying() {
@@ -528,12 +525,17 @@ function setup() {
 }
 
 // Add a mousePressed function to start the game
-function mousePressed() {
+function mousePressed(e) {
 	game.mousePressed();
 }
 
-function touchStarted() {
-	game.mousePressed();
+function touchStarted(e) {
+	if (e.target.id === "permissionButton") {
+		console.log("button pressed");
+		return true; // button has a click handler
+	} else {
+		game.mousePressed();
+	}
 }
 
 function draw() {
@@ -587,41 +589,52 @@ function isOverlapping(box1, box2) {
 
 let permissionGranted = false;
 
-function requestOrientationPermission() {
+async function requestOrientationPermission() {
 	// Check if the browser requires permission to access device orientation
 	if (typeof DeviceOrientationEvent.requestPermission === "function") {
 		DeviceOrientationEvent.requestPermission()
 			.then((permissionState) => {
 				if (permissionState === "granted") {
-					permissionGranted = true;
+					console.log("remove button");
+					document.getElementById("permissionButton").remove();
+					return true;
 				}
 			})
 			.catch(console.error);
 	}
 }
 
-function checkPermissionState() {
-	if (navigator.permissions) {
+async function checkPermissionGranted() {
+	if (
+		typeof DeviceOrientationEvent.requestPermission === "function" &&
+		navigator.permissions
+	) {
 		navigator.permissions
 			.query({ name: "accelerometer" })
 			.then((result) => {
 				if (result.state === "granted") {
-					permissionGranted = true;
+					return true;
 				} else if (result.state === "prompt") {
+					console.log("prompt");
+					return false;
 					// Permission has not been requested yet, wait for user action
 				} else if (result.state === "denied") {
+					console.log("denied");
+					return false;
 					// Permission was denied, inform the user
 				}
 				result.onchange = () => {
 					if (result.state === "granted") {
-						permissionGranted = true;
 						console.log("remove button");
 						document.getElementById("permissionButton").remove();
+						return true;
 					} else {
-						permissionGranted = false;
+						return true;
 					}
 				};
 			})
 			.catch(console.error);
+	} else {
+		return true;
 	}
 }
