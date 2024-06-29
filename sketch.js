@@ -530,7 +530,6 @@ function mousePressed(e) {
 function touchStarted(e) {
 	if (e.target.id === "permissionButton") {
 		console.log("button pressed");
-		requestOrientationPermission();
 		return true; // button has a click handler
 	} else {
 		game.mousePressed();
