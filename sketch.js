@@ -305,9 +305,10 @@ class Game {
 
 	static TEXT_COLOR = "lightgreen";
 
-	constructor(images) {
+	constructor(images, audio) {
 		this.speed = 30;
 		this.imgs = images;
+		this.audio = audio;
 		this.doodle = new Doodle(images.doodle);
 		this.monsters = new Monsters(images.monsters);
 		this.platforms = new Platforms(images.log, this.monsters);
@@ -478,6 +479,7 @@ class Game {
 			this.monsters.reset();
 			this.platforms.initPositions();
 			this.state = Game.STATE.PLAYING;
+			this.audio.background.play();
 		} else if (game.state == Game.STATE.GAME_OVER) {
 			this.doodle.reset();
 			this.monsters.reset();
@@ -533,6 +535,7 @@ class Game {
 
 let game;
 let images;
+let audio;
 
 function preload() {
 	images = {
@@ -550,10 +553,15 @@ function preload() {
 		alision: loadImage("images/alison_favicon.png"),
 		title: loadImage("images/title.png"),
 	};
+
+	soundFormats("mp3");
+	audio = {
+		background: loadSound("audio/background"),
+	};
 }
 
 function setup() {
-	game = new Game(images);
+	game = new Game(images, audio);
 	game.setup();
 }
 
