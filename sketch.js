@@ -585,7 +585,7 @@ function isOverlapping(box1, box2) {
 	return true;
 }
 
-async function requestOrientationPermission() {
+function requestOrientationPermission() {
 	// Check if the browser requires permission to access device orientation
 	if (typeof DeviceOrientationEvent.requestPermission === "function") {
 		DeviceOrientationEvent.requestPermission()
