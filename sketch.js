@@ -369,17 +369,15 @@ class Game {
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
-		checkPermissionGranted().then((granted) => {
-			if (!granted) {
-				// Create a button for requesting permission
-				let button = createButton("Allow Device Orientation");
-				button.position(width - width / 3, 10);
-				button.size(width / 3, height / 20);
-				button.style("font-size:1vh");
-				button.id("permissionButton");
-				button.mousePressed(requestOrientationPermission);
-			}
-		});
+		if (!checkPermissionGranted()) {
+			// Create a button for requesting permission
+			let button = createButton("Allow Device Orientation");
+			button.position(width - width / 3, 10);
+			button.size(width / 3, height / 20);
+			button.style("font-size:1vh");
+			button.id("permissionButton");
+			button.mousePressed(requestOrientationPermission);
+		}
 	}
 
 	drawPlaying() {
@@ -586,8 +584,6 @@ function isOverlapping(box1, box2) {
 	// Otherwise, the boxes overlap
 	return true;
 }
-
-let permissionGranted = false;
 
 async function requestOrientationPermission() {
 	// Check if the browser requires permission to access device orientation
