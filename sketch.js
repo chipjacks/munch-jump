@@ -95,7 +95,7 @@ class Doodle {
 		image(
 			this.imgs.sitting,
 			width / 2,
-			height / 2 + Doodle.WIDTH,
+			height / 2,
 			Doodle.WIDTH,
 			Doodle.HEIGHT
 		);
@@ -361,19 +361,19 @@ class Game {
 
 	drawMenu() {
 		background("beige");
-		textSize(DOODLE_HEIGHT / 2);
+		textSize(DOODLE_HEIGHT / 4);
 		strokeWeight(1);
 		textAlign(CENTER);
 		textFont("Bradley Hand");
 		stroke("black");
 		fill(Game.TEXT_COLOR);
-		text("Click to play!", width / 2, height / 2);
-		textSize(DOODLE_HEIGHT / 4);
+		text("Click to play!", width / 2, height / 2 + DOODLE_HEIGHT * 1.2);
 		text(
 			"Arrow keys or rotate device to move",
 			width / 2,
 			height / 2 + DOODLE_HEIGHT * 1.5
 		);
+		this.drawTitleImage();
 		this.doodle.drawMenuImage();
 		this.drawAlisonImage();
 		if (!checkPermissionGranted()) {
@@ -385,6 +385,17 @@ class Game {
 			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
 		}
+	}
+
+	drawTitleImage() {
+		imageMode(CENTER);
+		image(
+			this.imgs.title,
+			width / 2,
+			height * 0.3,
+			DOODLE_HEIGHT * 4,
+			DOODLE_HEIGHT * 2
+		);
 	}
 
 	drawAlisonImage() {
@@ -537,6 +548,7 @@ function preload() {
 		},
 		log: loadImage("images/log.png"),
 		alision: loadImage("images/alison_favicon.png"),
+		title: loadImage("images/title.png"),
 	};
 }
 
