@@ -368,6 +368,12 @@ class Game {
 		stroke("black");
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
+		textSize(DOODLE_HEIGHT / 4);
+		text(
+			"Arrow keys or rotate device to move",
+			width / 2,
+			height / 2 + DOODLE_HEIGHT * 1.5
+		);
 		this.doodle.drawMenuImage();
 		this.drawAlisonImage();
 		if (!checkPermissionGranted()) {
