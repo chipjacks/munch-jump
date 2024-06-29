@@ -315,6 +315,7 @@ class Game {
 	}
 
 	setup() {
+		checkPermissionState();
 		const canvas = document.getElementById("main-canvas");
 		const { w, h } = { w: window.innerWidth, h: window.innerHeight };
 		createCanvas(w, h, canvas);
@@ -378,16 +379,9 @@ class Game {
 			let button = createButton("Allow Device Orientation");
 			button.position(width - width / 3, 10);
 			button.size(width / 3, height / 20);
-			button.style("font-size:1vh");
+			button.style("font-size:3vh");
 			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
-		} else {
-			let button = document.getElementById("permissionButton");
-			if (button) {
-				button.size(0, 0);
-				button.hide();
-				button.remove();
-			}
 		}
 	}
 
@@ -449,8 +443,6 @@ class Game {
 	highScore() {
 		return getItem("highScore");
 	}
-
-	mouseMoved() {}
 
 	mousePressed() {
 		if (game.state === Game.STATE.MENU) {
@@ -548,10 +540,6 @@ function draw() {
 	game.draw();
 }
 
-function mouseMoved() {
-	game.mouseMoved();
-}
-
 function windowResized() {
 	DOODLE_HEIGHT = window.innerHeight / 10;
 	resizeCanvas(windowWidth, windowHeight);
@@ -600,24 +588,17 @@ function isOverlapping(box1, box2) {
 let permissionGranted = false;
 
 function requestOrientationPermission() {
-	document.getElementById("permissionButton").remove();
 	// Check if the browser requires permission to access device orientation
 	if (typeof DeviceOrientationEvent.requestPermission === "function") {
 		DeviceOrientationEvent.requestPermission()
 			.then((permissionState) => {
 				if (permissionState === "granted") {
 					permissionGranted = true;
-					window.addEventListener("deviceorientation", handleOrientation);
 				}
 			})
 			.catch(console.error);
-	} else {
-		// Handle regular non-iOS 13+ devices
-		window.addEventListener("deviceorientation", handleOrientation);
 	}
 }
-
-function handleOrientation(event) {}
 
 function checkPermissionState() {
 	if (navigator.permissions) {
@@ -626,8 +607,6 @@ function checkPermissionState() {
 			.then((result) => {
 				if (result.state === "granted") {
 					permissionGranted = true;
-					document.getElementById("permissionButton").remove();
-					window.addEventListener("deviceorientation", handleOrientation);
 				} else if (result.state === "prompt") {
 					// Permission has not been requested yet, wait for user action
 				} else if (result.state === "denied") {
@@ -636,7 +615,8 @@ function checkPermissionState() {
 				result.onchange = () => {
 					if (result.state === "granted") {
 						permissionGranted = true;
-						window.addEventListener("deviceorientation", handleOrientation);
+						console.log("remove button");
+						document.getElementById("permissionButton").remove();
 					} else {
 						permissionGranted = false;
 					}
