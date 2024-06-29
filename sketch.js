@@ -100,7 +100,6 @@ class Doodle {
 			Doodle.HEIGHT
 		);
 	}
-
 	newJump(platformY) {
 		this.jumpFrame = 0;
 		this.jumpStart = platformY;
@@ -308,6 +307,7 @@ class Game {
 
 	constructor(images) {
 		this.speed = 30;
+		this.imgs = images;
 		this.doodle = new Doodle(images.doodle);
 		this.monsters = new Monsters(images.monsters);
 		this.platforms = new Platforms(images.log, this.monsters);
@@ -369,6 +369,7 @@ class Game {
 		fill(Game.TEXT_COLOR);
 		text("Click to play!", width / 2, height / 2);
 		this.doodle.drawMenuImage();
+		this.drawAlisonImage();
 		if (!checkPermissionGranted()) {
 			// Create a button for requesting permission
 			let button = createButton("Allow Device Orientation");
@@ -378,6 +379,21 @@ class Game {
 			button.id("permissionButton");
 			button.mousePressed(requestOrientationPermission);
 		}
+	}
+
+	drawAlisonImage() {
+		textAlign(RIGHT);
+		const size = 30;
+		textSize(size);
+		text("Art by Alison Ponce", width - size - 30, height - 20);
+		imageMode(CORNERS);
+		image(
+			this.imgs.alision,
+			width - size - 20,
+			height - size - 20,
+			width,
+			height
+		);
 	}
 
 	drawPlaying() {
@@ -514,6 +530,7 @@ function preload() {
 			weiner_up: loadImage("images/super_weiner_up.png"),
 		},
 		log: loadImage("images/log.png"),
+		alision: loadImage("images/alison_favicon.png"),
 	};
 }
 
