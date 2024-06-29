@@ -604,36 +604,12 @@ async function requestOrientationPermission() {
 	}
 }
 
-async function checkPermissionGranted() {
+function checkPermissionGranted() {
 	if (
 		typeof DeviceOrientationEvent.requestPermission === "function" &&
-		navigator.permissions
+		rotationY === 0
 	) {
-		navigator.permissions
-			.query({ name: "accelerometer" })
-			.then((result) => {
-				if (result.state === "granted") {
-					return true;
-				} else if (result.state === "prompt") {
-					console.log("prompt");
-					return false;
-					// Permission has not been requested yet, wait for user action
-				} else if (result.state === "denied") {
-					console.log("denied");
-					return false;
-					// Permission was denied, inform the user
-				}
-				result.onchange = () => {
-					if (result.state === "granted") {
-						console.log("remove button");
-						document.getElementById("permissionButton").remove();
-						return true;
-					} else {
-						return true;
-					}
-				};
-			})
-			.catch(console.error);
+		return false;
 	} else {
 		return true;
 	}
