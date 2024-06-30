@@ -572,12 +572,14 @@ class Game {
 		if (game.state === Game.STATE.MENU) {
 			this.doodle.reset();
 			this.monsters.reset();
+			this.snacks.reset();
 			this.platforms.initPositions();
 			this.state = Game.STATE.PLAYING;
 			this.audio.background.play();
 		} else if (game.state == Game.STATE.GAME_OVER) {
 			this.doodle.reset();
 			this.monsters.reset();
+			this.snacks.reset();
 			this.platforms.initPositions();
 			this.state = Game.STATE.PLAYING;
 		}
