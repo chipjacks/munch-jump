@@ -100,6 +100,7 @@ class Doodle {
 			Doodle.HEIGHT
 		);
 	}
+
 	newJump(platformY) {
 		this.jumpFrame = 0;
 		this.jumpStart = platformY;
@@ -110,6 +111,14 @@ class Doodle {
 		} else {
 			this.doneFarting = true;
 		}
+		if (this.isBigJump === true) {
+			this.acceleration *= 1.5;
+			this.isBigJump = false;
+		}
+	}
+
+	bigJump() {
+		this.isBigJump = true;
 	}
 
 	isFalling() {
@@ -131,8 +140,9 @@ class Platforms {
 	static HEIGHT = Platforms.WIDTH * 0.3;
 	static MIN_DISTANCE = DOODLE_HEIGHT;
 
-	constructor(img, monsters) {
+	constructor(img, monsters, snacks) {
 		this.monsters = monsters;
+		this.snacks = snacks;
 		this.img = img;
 	}
 
@@ -179,6 +189,10 @@ class Platforms {
 			...p,
 			y: p.y + increase,
 		}));
+		this.snacks.positions = this.snacks.positions.map((p) => ({
+			...p,
+			y: p.y + increase,
+		}));
 		const topY = Math.min(...this.positions.map((p) => p.y));
 		const nextY = this._spaceBetween();
 		if (topY > nextY) {
@@ -190,6 +204,9 @@ class Platforms {
 				this.positions.length % 10 == 0
 			) {
 				this.monsters.addMonster(pos.x, pos.y);
+			}
+			if (pos && this.positions.length > 5 && this.positions.length % 5 == 0) {
+				this.snacks.addSnack(pos.x, pos.y);
 			}
 		}
 	}
@@ -296,6 +313,82 @@ class Monsters {
 	}
 }
 
+class Snacks {
+	static WIDTH = DOODLE_HEIGHT / 2;
+	static HEIGHT = Snacks.WIDTH;
+
+	constructor(snackImgs) {
+		this.positions = [];
+		this.imgs = snackImgs;
+	}
+
+	reset() {
+		this.positions = [];
+	}
+
+	addSnack(blx, bly) {
+		const pos = {
+			x: blx,
+			y: bly - Snacks.HEIGHT,
+			w: Snacks.WIDTH,
+			h: Snacks.HEIGHT,
+		};
+		this.positions.push(pos);
+	}
+
+	draw() {
+		this.positions.forEach((pos) => {
+			// draw a monster on the platform
+			imageMode(CORNERS);
+			if (pos.eaten) {
+				image(
+					this.imgs.crumbs,
+					pos.x + pos.w / 2,
+					pos.y + pos.w / 2,
+					pos.x + pos.w,
+					pos.y + pos.h
+				);
+			} else {
+				image(this.imgs.carrot, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
+			}
+		});
+		// this._debugCollisionArea();
+	}
+
+	_debugCollisionArea() {
+		stroke("purple");
+		this.positions.forEach((pos) => {
+			Object.values(this.corners(pos)).forEach((c) => {
+				point(c.x, c.y);
+			});
+		});
+	}
+
+	corners(pos) {
+		return {
+			tl: { x: pos.x, y: pos.y },
+			tr: { x: pos.x + pos.w, y: pos.y },
+			bl: { x: pos.x, y: pos.y + pos.h },
+			br: { x: pos.x + pos.w, y: pos.y + pos.h },
+		};
+	}
+
+	eat(pos) {
+		const snack = this.positions.find((p) => p === pos);
+		if (!snack) {
+			console.error("missing snack!", pos);
+			return;
+		}
+		if (!this.isEaten(snack)) {
+			snack.eaten = true;
+		}
+	}
+
+	isEaten(pos) {
+		return pos.eaten === true;
+	}
+}
+
 class Game {
 	static STATE = Object.freeze({
 		MENU: "menu",
@@ -311,7 +404,8 @@ class Game {
 		this.audio = audio;
 		this.doodle = new Doodle(images.doodle);
 		this.monsters = new Monsters(images.monsters);
-		this.platforms = new Platforms(images.log, this.monsters);
+		this.snacks = new Snacks(images.snacks);
+		this.platforms = new Platforms(images.log, this.monsters, this.snacks);
 		this.state = Game.STATE.MENU;
 	}
 
@@ -421,6 +515,7 @@ class Game {
 		//draw everything
 		this.platforms.draw();
 		this.monsters.draw();
+		this.snacks.draw();
 		this.doodle.draw();
 		this.drawScore();
 
@@ -523,10 +618,18 @@ class Game {
 			if (isOverlapping(this.monsters.corners(pos), this.doodle.corners())) {
 				if (this.doodle.isFalling()) {
 					this.monsters.flatten(pos);
-					this.doodle.fart();
 				} else if (!this.monsters.isFlattened(pos)) {
 					this.transitionGameOver();
 					return;
+				}
+			}
+		});
+		this.snacks.positions.forEach((pos) => {
+			if (isOverlapping(this.snacks.corners(pos), this.doodle.corners())) {
+				if (!this.snacks.isEaten(pos)) {
+					this.snacks.eat(pos);
+					this.doodle.bigJump();
+					this.doodle.fart();
 				}
 			}
 		});
@@ -548,6 +651,11 @@ function preload() {
 			bear: loadImage("images/bear.png"),
 			weiner: loadImage("images/super_weiner_down.png"),
 			weiner_up: loadImage("images/super_weiner_up.png"),
+		},
+		snacks: {
+			banana: loadImage("images/banana.png"),
+			carrot: loadImage("images/carrot.png"),
+			crumbs: loadImage("images/crumbs.png"),
 		},
 		log: loadImage("images/log.png"),
 		alision: loadImage("images/alison_favicon.png"),
