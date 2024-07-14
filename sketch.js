@@ -206,7 +206,7 @@ class Platforms {
 			) {
 				this.monsters.addMonster(pos.x, pos.y);
 			}
-			if (pos && this.positions.length > 5 && this.positions.length % 5 == 0) {
+			if (pos && this.positions.length > 7 && this.positions.length % 7 == 0) {
 				this.snacks.addSnack(pos.x, pos.y);
 			}
 		}
@@ -255,11 +255,15 @@ class Monsters {
 	addMonster(blx, bly) {
 		const imgs = Object.values(this.imgs.animals);
 		const img = imgs[Math.floor(Math.random() * imgs.length)];
+		let h = Monsters.HEIGHT;
+		if (img === this.imgs.animals.bear) {
+			h *= 1.5;
+		}
 		const pos = {
 			x: blx,
-			y: bly - Monsters.HEIGHT + 10,
+			y: bly - h + 10,
 			w: Monsters.WIDTH,
-			h: Monsters.HEIGHT,
+			h,
 			img,
 		};
 		this.positions.push(pos);
@@ -333,8 +337,8 @@ class Snacks {
 		const snackImgs = Object.values(this.imgs.food);
 		const img = snackImgs[Math.floor(Math.random() * snackImgs.length)];
 		const pos = {
-			x: blx,
-			y: bly - Snacks.HEIGHT,
+			x: blx + Platforms.WIDTH / 4,
+			y: bly - Snacks.HEIGHT + 10,
 			w: Snacks.WIDTH,
 			h: Snacks.HEIGHT,
 			img,
@@ -658,9 +662,8 @@ function preload() {
 		},
 		snacks: {
 			food: {
-				banana: loadImage("images/food/banana.png"),
-				carrot: loadImage("images/food/carrot.png"),
 				cinnyroll: loadImage("images/food/cinnyroll.png"),
+				cheese: loadImage("images/food/cheese.png"),
 			},
 			crumbs: loadImage("images/food/crumbs.png"),
 		},
