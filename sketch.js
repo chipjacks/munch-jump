@@ -19,6 +19,7 @@ class Doodle {
 		this.acceleration = height / (100 / Doodle.JUMP_SPEED);
 		this.x = width / 2;
 		this.isFarting = false;
+		this.isBigJump = false;
 	}
 
 	updatePosition() {
@@ -344,13 +345,7 @@ class Snacks {
 			// draw a monster on the platform
 			imageMode(CORNERS);
 			if (pos.eaten) {
-				image(
-					this.imgs.crumbs,
-					pos.x + pos.w / 2,
-					pos.y + pos.w / 2,
-					pos.x + pos.w,
-					pos.y + pos.h
-				);
+				image(this.imgs.crumbs, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 			} else {
 				image(pos.img, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 			}
@@ -659,9 +654,9 @@ function preload() {
 		},
 		snacks: {
 			food: {
-				banana: loadImage("images/banana.png"),
-				carrot: loadImage("images/carrot.png"),
-				cinnyroll: loadImage("images/cinnyroll.png"),
+				banana: loadImage("images/food/banana.png"),
+				carrot: loadImage("images/food/carrot.png"),
+				cinnyroll: loadImage("images/food/cinnyroll.png"),
 			},
 			crumbs: loadImage("images/crumbs.png"),
 		},
