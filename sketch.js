@@ -315,7 +315,7 @@ class Monsters {
 
 class Snacks {
 	static WIDTH = DOODLE_HEIGHT / 2;
-	static HEIGHT = Snacks.WIDTH;
+	static HEIGHT = Snacks.WIDTH * 0.8;
 
 	constructor(snackImgs) {
 		this.positions = [];
@@ -349,7 +349,7 @@ class Snacks {
 					pos.y + pos.h
 				);
 			} else {
-				image(this.imgs.carrot, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
+				image(this.imgs.cinnyroll, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 			}
 		});
 		// this._debugCollisionArea();
@@ -657,6 +657,7 @@ function preload() {
 		snacks: {
 			banana: loadImage("images/banana.png"),
 			carrot: loadImage("images/carrot.png"),
+			cinnyroll: loadImage("images/cinnyroll.png"),
 			crumbs: loadImage("images/crumbs.png"),
 		},
 		log: loadImage("images/log.png"),
