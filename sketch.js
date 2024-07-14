@@ -327,11 +327,14 @@ class Snacks {
 	}
 
 	addSnack(blx, bly) {
+		const snackImgs = Object.values(this.imgs.food);
+		const img = snackImgs[Math.floor(Math.random() * snackImgs.length)];
 		const pos = {
 			x: blx,
 			y: bly - Snacks.HEIGHT,
 			w: Snacks.WIDTH,
 			h: Snacks.HEIGHT,
+			img,
 		};
 		this.positions.push(pos);
 	}
@@ -349,7 +352,7 @@ class Snacks {
 					pos.y + pos.h
 				);
 			} else {
-				image(this.imgs.cinnyroll, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
+				image(pos.img, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 			}
 		});
 		// this._debugCollisionArea();
@@ -655,9 +658,11 @@ function preload() {
 			weiner_up: loadImage("images/super_weiner_up.png"),
 		},
 		snacks: {
-			banana: loadImage("images/banana.png"),
-			carrot: loadImage("images/carrot.png"),
-			cinnyroll: loadImage("images/cinnyroll.png"),
+			food: {
+				banana: loadImage("images/banana.png"),
+				carrot: loadImage("images/carrot.png"),
+				cinnyroll: loadImage("images/cinnyroll.png"),
+			},
 			crumbs: loadImage("images/crumbs.png"),
 		},
 		log: loadImage("images/log.png"),
