@@ -253,11 +253,14 @@ class Monsters {
 	}
 
 	addMonster(blx, bly) {
+		const imgs = Object.values(this.imgs.animals);
+		const img = imgs[Math.floor(Math.random() * imgs.length)];
 		const pos = {
 			x: blx,
 			y: bly - Monsters.HEIGHT + 10,
 			w: Monsters.WIDTH,
 			h: Monsters.HEIGHT,
+			img,
 		};
 		this.positions.push(pos);
 	}
@@ -266,15 +269,14 @@ class Monsters {
 		this.positions.forEach((pos) => {
 			// draw a monster on the platform
 			imageMode(CORNERS);
-			image(
-				round(frameCount / 10) % 2 == 0
-					? this.imgs.weiner
-					: this.imgs.weiner_up,
-				pos.x,
-				pos.y,
-				pos.x + pos.w,
-				pos.y + pos.h
-			);
+			let img = pos.img;
+			if (pos.img === this.imgs.animals.weiner) {
+				img =
+					round(frameCount / 10) % 2 == 0
+						? this.imgs.animals.weiner
+						: this.imgs.weiner_up;
+			}
+			image(img, pos.x, pos.y, pos.x + pos.w, pos.y + pos.h);
 		});
 		// this._debugCollisionArea();
 	}
@@ -648,9 +650,11 @@ function preload() {
 			fart: loadImage("images/doodle_fart.png"),
 		},
 		monsters: {
-			bear: loadImage("images/bear.png"),
-			weiner: loadImage("images/super_weiner_down.png"),
-			weiner_up: loadImage("images/super_weiner_up.png"),
+			animals: {
+				bear: loadImage("images/monsters/bear.png"),
+				weiner: loadImage("images/monsters/super_weiner_down.png"),
+			},
+			weiner_up: loadImage("images/monsters/super_weiner_up.png"),
 		},
 		snacks: {
 			food: {
@@ -658,7 +662,7 @@ function preload() {
 				carrot: loadImage("images/food/carrot.png"),
 				cinnyroll: loadImage("images/food/cinnyroll.png"),
 			},
-			crumbs: loadImage("images/crumbs.png"),
+			crumbs: loadImage("images/food/crumbs.png"),
 		},
 		log: loadImage("images/log.png"),
 		alision: loadImage("images/alison_favicon.png"),
