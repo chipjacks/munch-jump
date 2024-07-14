@@ -336,11 +336,15 @@ class Snacks {
 	addSnack(blx, bly) {
 		const snackImgs = Object.values(this.imgs.food);
 		const img = snackImgs[Math.floor(Math.random() * snackImgs.length)];
+		let h = Snacks.HEIGHT;
+		if (img === this.imgs.food.frappe) {
+			h *= 1.8;
+		}
 		const pos = {
 			x: blx + Platforms.WIDTH / 4,
-			y: bly - Snacks.HEIGHT + 10,
+			y: bly - h + 10,
 			w: Snacks.WIDTH,
-			h: Snacks.HEIGHT,
+			h,
 			img,
 		};
 		this.positions.push(pos);
@@ -664,6 +668,7 @@ function preload() {
 			food: {
 				cinnyroll: loadImage("images/food/cinnyroll.png"),
 				cheese: loadImage("images/food/cheese.png"),
+				frappe: loadImage("images/food/frappe.png"),
 			},
 			crumbs: loadImage("images/food/crumbs.png"),
 		},
