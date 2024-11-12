@@ -16,7 +16,7 @@ export class Monsters {
 		const imgs = Object.values(this.imgs.animals);
 		const img = imgs[Math.floor(Math.random() * imgs.length)];
 		let h = MONSTERS.HEIGHT;
-		if (img === this.imgs.animals.bear) {
+		if (img === this.imgs.animals.bear || img === this.imgs.animals.love_bear) {
 			h *= 1.5;
 		}
 		const pos = {

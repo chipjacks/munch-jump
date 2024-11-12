@@ -12,6 +12,7 @@ function preload() {
 		monsters: {
 			animals: {
 				bear: loadImage("images/monsters/bear.png"),
+				love_bear: loadImage("images/monsters/love_bear.png"),
 				weiner: loadImage("images/monsters/super_weiner_down.png"),
 			},
 			weiner_up: loadImage("images/monsters/super_weiner_up.png"),
